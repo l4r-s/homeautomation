@@ -13,9 +13,7 @@ def on_connect(client, userdata, flags, rc):
     for d in zigbee_devices:
         sub_list.append((str(config['zigbee2mqtt']['topic'] + '/' + d), 0))
 
-    #client.subscribe([ ("zigbee2mqtt/test",0), ("zigbee2mqtt/test2",0) ])
     client.subscribe(sub_list)
-
     print('Subscribed to topics: ' + str(sub_list))
 
 def on_message(client, userdata, msg):
@@ -32,11 +30,6 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.connect("localhost", 1883, 60)
-
-# Blocking call that processes network traffic, dispatches callbacks and
-# handles reconnecting.
-# Other loop*() functions are available that give a threaded interface and a
-# manual interface.
+client.connect(config['zigbee2mqtt']['server'], config['zigbee2mqtt']['port'], 60)
 client.loop_forever()
 
