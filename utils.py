@@ -43,14 +43,39 @@ def Config():
 
     return config
 
+def loadDevices():
+    config = Config()
+
+    class_lookup = {
+        'ikea_lamp': IkeaLamp,
+        'ikea_switch': IkeaSwitch
+    }
+
+    # holds all devices as objects
+    devices = {}
+
+    # holds all zigbee device names
+    zigbee_devices = []
+
+    for device in config['devices'].keys():
+        devices[device] = class_lookup.get(config['devices'][device]['type'], Device)(device)
+
+        if devices[device].__dict__.get('zigbee'):
+            zigbee_devices.append(device)
+
+    return devices, zigbee_devices
+
 class Device():
-    def __init__(self, name, zigbee_id=None, data=False):
+    def __init__(self, name, data=False):
         self.name = name
         self.load()
-        self.zigbee_id = zigbee_id
 
         if data:
             self.__dict__.update(data)
+
+    def update(self, data):
+        self.__dict__.update(data)
+        self.save()
 
     def load(self):
         config = Config()
