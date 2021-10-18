@@ -1,0 +1,28 @@
+---
+
+storage_directory: store/
+api_tokens:
+  - test1234
+  - test1111
+
+zigbee2mqtt:
+  server: mqtt.test
+  topic: zigbee2mqtt
+
+devices:
+    kueche1:
+      type: ikea_lamp
+
+    kueche2:
+      type: ikea_lamp
+
+    kueche3:
+      type: ikea_lamp
+
+    volumio1:
+      type: volumio
+      address: 10.111.1.101
+
+
+
+...

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# creating venv
+if [ ! -f "venv/bin/activate" ]; then
+    echo "Creating virtualenv under venv/"
+    python3 -m venv venv
+    source venv/bin/activate
+
+    echo "installing python (pip) dependencies from requirements.txt"
+    pip install -r req.txt
+fi
+
+# copy config if not exists
+[ ! -f "config.yml" ] && echo "copy default config" && cp config.example.yml config.yml
+
+source venv/bin/activate
+
+# create needed directories
+mkdir -p store
+
+export FLASK_ENV="development"
+flask run --reload --host 0.0.0.0 --port 8000 --extra-files "config.yml:utils.py"
