@@ -20,8 +20,7 @@ from flask import redirect
 from flask_cors import CORS
 #from functools import wraps
 
-from utils import Config
-from utils import Device
+from utils import *
 
 ##
 # init app
@@ -99,6 +98,21 @@ if app.config['DEBUG']:
 ##
 # routes
 ##
+@app.route('/api/v1/devices')
+def show_devices():
+    data = []
+    devices, _ = loadDevices()
+
+    for d in devices.keys():
+        data.append(devices[d].__dict__)
+
+    return jsonify(data)
+
+@app.route('/api/v1/devices/<device>')
+def show_device(device):
+    data = loadDevice(device).__dict__
+
+    return jsonify(data)
 
 # ui files
 #@app.route('/ui/stats')

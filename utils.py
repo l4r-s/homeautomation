@@ -45,6 +45,27 @@ def Config():
 
     return config
 
+def getDeviceClass(dev_type='default'):
+    class_lookup = {
+        'default': Device,
+        'mystrom_switch': MyStromSwitch,
+        'ikea_lamp': IkeaLamp,
+        'ikea_switch': IkeaSwitch
+    }
+
+    return class_lookup.get(dev_type, Device)
+
+def loadDevice(name):
+    config = Config()
+
+    device = config['devices'].get(name, None)
+
+    if not device:
+        print('ERROR - device {} not found in config!'.format(name))
+        return False, None
+
+    return getDeviceClass(config['devices'][name]['type'])(name)
+
 def loadDevices(com_type=None):
     # type:
     #  - zigbee
@@ -52,17 +73,11 @@ def loadDevices(com_type=None):
 
     config = Config()
 
-    class_lookup = {
-        'mystrom_switch': MyStromSwitch,
-        'ikea_lamp': IkeaLamp,
-        'ikea_switch': IkeaSwitch
-    }
-
     devices = {}
     filtered = []
 
     for device in config['devices'].keys():
-        devices[device] = class_lookup.get(config['devices'][device]['type'], Device)(device)
+        devices[device] = getDeviceClass(config['devices'][device]['type'])(device)
 
         if com_type:
             if devices[device].com_type == com_type:
@@ -81,6 +96,9 @@ class Device():
 
         if data:
             self.__dict__.update(data)
+
+    def __repr__(self):
+        return json.dumps(self.__dict__)
 
     def getState(self):
         print('This device state can only be updated with the .update() method!')
