@@ -62,7 +62,7 @@ def loadDevice(name):
 
     if not device:
         print('ERROR - device {} not found in config!'.format(name))
-        return False, None
+        return False
 
     return getDeviceClass(config['devices'][name]['type'])(name)
 
@@ -91,8 +91,10 @@ def loadDevices(com_type=None):
 class Device():
     def __init__(self, name, data=False):
         self.name = name
-        self.load()
         self.com_type = None
+        self.actions = []
+
+        self.load()
 
         if data:
             self.__dict__.update(data)
@@ -152,28 +154,42 @@ class MyStromSwitch(Device):
         super().__init__(*args, **kwargs)
 
         self.com_type = 'http'
+        self.actions = [ 'on', 'off', 'toogle', 'getState' ]
         self.getState()
+
+    def action(self, action):
+        if action not in self.actions:
+            print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
+            return False, None
+
+        if action == 'on' or action == 'off' or action == 'toogle':
+            data = self.setState(action)
+
+        if action == 'getState':
+            data = self.getState()
+
+        return data
 
     def getState(self):
         r = requests.get('http://{}/report'.format(self.address))
 
         if r.status_code != 200:
             print('ERROR - http request not 200: {} - '.format(str(r.status_code), str(r.text)))
-            return False, None
+            return None
 
         data = r.json()
         self.__dict__.update(data)
         self.setLastUpdate()
 
         self.save()
-        return True, data
+        return data
 
     def setState(self, state='Toogle'):
         allowed = [ 'TOOGLE', 'ON', 'OFF' ]
 
         if state.upper() not in allowed:
             print('ERROR - {} is not allowed ({})'.format(state, str(allowed)))
-            return False, None
+            return None
 
         if state.upper() == 'TOOGLE':
             path = '/toggle'
@@ -189,23 +205,21 @@ class MyStromSwitch(Device):
 
         if r.status_code != 200:
             print('ERROR - http request not 200: {} - '.format(str(r.status_code), str(r.text)))
-            return False, None
+            return None
 
         _, data = self.getState()
 
-        return True, data
+        return data
 
 class ZigBeeDevice(Device):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.com_type = 'zigbee'
+        if not self.__dict__.get('zigbee_id'):
+            self.zigbee_id = self.name
 
     def sendMsg(self, msg):
-        if not self.zigbee_id:
-            print('ERROR - zigbee_id must be present on object!')
-            return False
-
         config = Config()
         server = config['zigbee2mqtt']['server']
         topic = config['zigbee2mqtt']['topic'] + '/' + self.zigbee_id + '/set'
@@ -214,63 +228,80 @@ class ZigBeeDevice(Device):
         return True
 
 class IkeaSwitch(ZigBeeDevice):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.actions = [ 'on', 'off', 'toogle', 'getState' ]
+
+    def action(self, action):
+        if action not in self.actions:
+            print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
+            return False, None
+
+        if action == 'on' or action == 'off' or action == 'toogle':
+            data = self.setState(action)
+
+        if action == 'getState':
+            data = self.getState()
+
+        return data
+
     def setState(self, state='Toogle'):
         allowed = [ 'TOOGLE', 'ON', 'OFF' ]
 
         if state.upper() not in allowed:
             print('ERROR - {} is not allowed ({})'.format(state, str(allowed)))
-            return False, None
+            return None
 
         msg = { 'state': state.upper() }
 
         if not self.sendMsg(msg):
-            return False, None
+            return None
 
         self.__dict__.update(msg)
         self.save()
 
-        return True, msg
+        return msg
 
 class IkeaLamp(IkeaSwitch):
     def setBrightness(self, data, transition=1):
         if data not in range(0,254):
             print('ERROR - data must be integer between 0 and 254')
-            return False, None
+            return None
 
         if type(transition) != int:
             print('ERROR - transition must be an integer.')
-            return False, None
+            return None
 
         self.brightness = data
         msg = { 'brightness': self.brightness, 'transition': transition }
 
-        return True, msg
+        return msg
 
     def setColorTemp(self, data, transition=1):
         allowed = [ 'coolest', 'cool', 'neutral', 'warm', 'warmest' ]
 
         if data not in range(250,454) and data not in allowed:
             print('ERROR - data must be integer between 250 and 454 or {}'.format(allowed))
-            return False, None
+            return None
 
         if type(transition) != int:
             print('ERROR - transition must be an integer.')
-            return False, None
+            return None
 
         self.color_temp = data
         msg = { 'color_temp': self.color_temp, 'transition': transition  }
 
-        return True, msg
+        return msg
 
     def doEffect(self, data):
         allowed = [ 'blink', 'breathe', 'okay', 'channel_change', 'finish_effect', 'stop_effect' ]
 
         if data not in allowed:
             print('ERROR - data must be one of {}'.format(allowed))
-            return False, None
+            return None
 
         msg = { 'effect': data }
-        return True, msg
+        return msg
 
 #def delete_file(uuid):
 #    filename = config['storage_directory'].rstrip('/') + '/' + uuid + '.json'

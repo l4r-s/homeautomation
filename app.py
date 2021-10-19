@@ -108,11 +108,31 @@ def show_devices():
 
     return jsonify(data)
 
-@app.route('/api/v1/devices/<device>')
+@app.route('/api/v1/devices/<device>', methods = [ 'GET', 'POST' ])
 def show_device(device):
-    data = loadDevice(device).__dict__
+    device = loadDevice(device)
+    if not device:
+        abort(make_response(jsonify(message='device not found!'), 404))
 
-    return jsonify(data)
+    if request.method == 'GET':
+        return jsonify(device.__dict__)
+
+    if request.method == 'POST':
+        data = request.get_json(force=True)
+        action = data.get('action')
+
+        if not action:
+            abort(make_response(jsonify(message='malformed payload'), 400))
+
+        if action not in device.actions:
+            abort(make_response(
+                jsonify(
+                    message = 'action not allowed',
+                    actions = device.actions
+                ), 400)
+            )
+
+        return jsonify(device.action(action))
 
 # ui files
 #@app.route('/ui/stats')
