@@ -1,6 +1,7 @@
 import os
 import json
 import yaml
+import requests
 
 def Config():
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -47,6 +48,7 @@ def loadDevices():
     config = Config()
 
     class_lookup = {
+        'mystrom_switch': MyStromSwitch,
         'ikea_lamp': IkeaLamp,
         'ikea_switch': IkeaSwitch
     }
@@ -72,6 +74,10 @@ class Device():
 
         if data:
             self.__dict__.update(data)
+
+    def getState(self):
+        print('This device state can only be updated with the .update() method!')
+        return False
 
     def update(self, data):
         self.__dict__.update(data)
@@ -106,6 +112,47 @@ class Device():
             json.dump(self.__dict__, f)
 
         return
+
+class MyStromSwitch(Device):
+    def getState(self):
+        r = requests.get('http://{}/report'.format(self.address))
+
+        if r.status_code != 200:
+            print('ERROR - http request not 200: {} - '.format(str(r.status_code), str(r.text)))
+            return False
+
+        data = r.json()
+        self.__dict__.update(data)
+        self.save()
+
+        return True, data
+
+    def setState(self, state='Toogle'):
+        allowed = [ 'TOOGLE', 'ON', 'OFF' ]
+
+        if state.upper() not in allowed:
+            print('ERROR - {} is not allowed ({})'.format(state, str(allowed)))
+            return False
+
+        if state.upper() == 'TOOGLE':
+            path = '/toggle'
+
+        if state.upper() == 'ON':
+            path = '/relay?state=1'
+
+        if state.upper() == 'OFF':
+            path = '/relay?state=0'
+
+        url = 'http://{}'.format(self.address) + path
+        r = requests.get(url)
+
+        if r.status_code != 200:
+            print('ERROR - http request not 200: {} - '.format(str(r.status_code), str(r.text)))
+            return False
+
+        _, data = self.getState()
+
+        return True, data
 
 class ZigBeeDevice(Device):
     def sendMsg(self, msg):

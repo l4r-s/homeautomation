@@ -6,18 +6,26 @@ api_tokens:
   - test1111
 
 zigbee2mqtt:
-  server: mqtt.test
+  server: localhost
+  port: 1883
   topic: zigbee2mqtt
 
 devices:
     kueche1:
       type: ikea_lamp
+      zigbee: true
 
     kueche2:
-      type: ikea_lamp
+      type: ikea_switch
+      zigbee: true
 
     kueche3:
       type: ikea_lamp
+      zigbee: true
+
+    wohnzimmer:
+      type: mystrom_switch
+      address: 10.111.1.198
 
     volumio1:
       type: volumio
