@@ -44,7 +44,11 @@ def Config():
 
     return config
 
-def loadDevices():
+def loadDevices(com_type=None):
+    # type:
+    #  - zigbee
+    #  - http
+
     config = Config()
 
     class_lookup = {
@@ -57,20 +61,25 @@ def loadDevices():
     devices = {}
 
     # holds all zigbee device names
-    zigbee_devices = []
+    filtered = []
 
     for device in config['devices'].keys():
         devices[device] = class_lookup.get(config['devices'][device]['type'], Device)(device)
 
-        if devices[device].__dict__.get('zigbee'):
-            zigbee_devices.append(device)
+        if com_type:
+            if devices[device].com_type == com_type:
+                filtered.append(device)
 
-    return devices, zigbee_devices
+        if not com_type:
+            filtered = devices
+
+    return devices, filtered
 
 class Device():
     def __init__(self, name, data=False):
         self.name = name
         self.load()
+        self.com_type = None
 
         if data:
             self.__dict__.update(data)
@@ -114,6 +123,12 @@ class Device():
         return
 
 class MyStromSwitch(Device):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.com_type = 'http'
+        self.getState()
+
     def getState(self):
         r = requests.get('http://{}/report'.format(self.address))
 
@@ -155,6 +170,11 @@ class MyStromSwitch(Device):
         return True, data
 
 class ZigBeeDevice(Device):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.com_type = 'zigbee'
+
     def sendMsg(self, msg):
         if not self.zigbee_id:
             print('ERROR - zigbee_id must be present on object!')

@@ -13,15 +13,12 @@ zigbee2mqtt:
 devices:
     kueche1:
       type: ikea_lamp
-      zigbee: true
 
     kueche2:
       type: ikea_switch
-      zigbee: true
 
     kueche3:
       type: ikea_lamp
-      zigbee: true
 
     wohnzimmer:
       type: mystrom_switch
