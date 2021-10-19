@@ -1,4 +1,5 @@
 import os
+import time
 import json
 import yaml
 import requests
@@ -57,10 +58,7 @@ def loadDevices(com_type=None):
         'ikea_switch': IkeaSwitch
     }
 
-    # holds all devices as objects
     devices = {}
-
-    # holds all zigbee device names
     filtered = []
 
     for device in config['devices'].keys():
@@ -90,7 +88,16 @@ class Device():
 
     def update(self, data):
         self.__dict__.update(data)
+        self.setLastUpdate()
+
         self.save()
+
+    def setLastUpdate(self):
+        now = time.localtime()
+
+        self.last_update = {}
+        self.last_update['unix'] = time.mktime(now)
+        self.last_update['human'] = time.asctime(now)
 
     def load(self):
         config = Config()
@@ -138,8 +145,9 @@ class MyStromSwitch(Device):
 
         data = r.json()
         self.__dict__.update(data)
-        self.save()
+        self.setLastUpdate()
 
+        self.save()
         return True, data
 
     def setState(self, state='Toogle'):
