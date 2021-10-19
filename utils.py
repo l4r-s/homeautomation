@@ -86,7 +86,7 @@ class Device():
 
     def getState(self):
         print('This device state can only be updated with the .update() method!')
-        return False
+        return False, None
 
     def update(self, data):
         self.__dict__.update(data)
@@ -134,7 +134,7 @@ class MyStromSwitch(Device):
 
         if r.status_code != 200:
             print('ERROR - http request not 200: {} - '.format(str(r.status_code), str(r.text)))
-            return False
+            return False, None
 
         data = r.json()
         self.__dict__.update(data)
@@ -147,7 +147,7 @@ class MyStromSwitch(Device):
 
         if state.upper() not in allowed:
             print('ERROR - {} is not allowed ({})'.format(state, str(allowed)))
-            return False
+            return False, None
 
         if state.upper() == 'TOOGLE':
             path = '/toggle'
@@ -163,7 +163,7 @@ class MyStromSwitch(Device):
 
         if r.status_code != 200:
             print('ERROR - http request not 200: {} - '.format(str(r.status_code), str(r.text)))
-            return False
+            return False, None
 
         _, data = self.getState()
 
@@ -193,12 +193,12 @@ class IkeaSwitch(ZigBeeDevice):
 
         if state.upper() not in allowed:
             print('ERROR - {} is not allowed ({})'.format(state, str(allowed)))
-            return False
+            return False, None
 
         msg = { 'state': state.upper() }
 
         if not self.sendMsg(msg):
-            return False
+            return False, None
 
         self.__dict__.update(msg)
         self.save()
@@ -209,11 +209,11 @@ class IkeaLamp(IkeaSwitch):
     def setBrightness(self, data, transition=1):
         if data not in range(0,254):
             print('ERROR - data must be integer between 0 and 254')
-            return False
+            return False, None
 
         if type(transition) != int:
             print('ERROR - transition must be an integer.')
-            return False
+            return False, None
 
         self.brightness = data
         msg = { 'brightness': self.brightness, 'transition': transition }
@@ -225,11 +225,11 @@ class IkeaLamp(IkeaSwitch):
 
         if data not in range(250,454) and data not in allowed:
             print('ERROR - data must be integer between 250 and 454 or {}'.format(allowed))
-            return False
+            return False, None
 
         if type(transition) != int:
             print('ERROR - transition must be an integer.')
-            return False
+            return False, None
 
         self.color_temp = data
         msg = { 'color_temp': self.color_temp, 'transition': transition  }
@@ -241,7 +241,7 @@ class IkeaLamp(IkeaSwitch):
 
         if data not in allowed:
             print('ERROR - data must be one of {}'.format(allowed))
-            return False
+            return False, None
 
         msg = { 'effect': data }
         return True, msg
