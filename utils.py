@@ -5,6 +5,11 @@ import yaml
 import requests
 import paho.mqtt.client as mqtt
 
+
+##
+# Config
+##
+
 def Config():
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -45,6 +50,11 @@ def Config():
     #    config['api_tokens_list'].append(config['api_tokens'][key]['token'])
 
     return config
+
+
+##
+# Device loading
+##
 
 def getDeviceClass(dev_type='default'):
     class_lookup = {
@@ -89,6 +99,11 @@ def loadDevices(com_type=None):
 
     return devices, filtered
 
+
+##
+# Device Classes
+##
+
 class Device():
     def __init__(self, name, data=False):
         self.name = name
@@ -108,8 +123,8 @@ class Device():
         return False, None
 
     def update(self, data):
-        self.__dict__.update(data)
         self.setLastUpdate()
+        self.__dict__.update(data)
 
         self.save()
 
@@ -143,6 +158,7 @@ class Device():
 
     def save(self):
         config = Config()
+
         storage_directory = config['storage_directory']
         devices = config['devices']
         filename = storage_directory.rstrip('/') + '/' + self.name + '.json'
@@ -181,10 +197,8 @@ class MyStromSwitch(Device):
             return None
 
         data = r.json()
-        self.__dict__.update(data)
-        self.setLastUpdate()
+        self.update(data)
 
-        self.save()
         return data
 
     def setState(self, state='Toogle'):
@@ -277,8 +291,7 @@ class IkeaSwitch(ZigBeeDevice):
         if not self.sendMsg(msg):
             return None
 
-        self.__dict__.update(msg)
-        self.save()
+        self.update(msg)
 
         return msg
 
@@ -346,7 +359,7 @@ class IkeaLamp(IkeaSwitch):
         if not send:
             return False
 
-        self.__dict__.update(msg)
+        self.update(msg)
 
         return msg
 
@@ -372,7 +385,7 @@ class IkeaLamp(IkeaSwitch):
         if not send:
             return False
 
-        self.__dict__.update(msg)
+        self.update(msg)
 
         return msg
 
@@ -391,7 +404,7 @@ class IkeaLamp(IkeaSwitch):
         if not send:
             return False
 
-        self.__dict__.update(msg)
+        self.update(msg)
 
         return msg
 
