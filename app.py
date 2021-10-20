@@ -120,6 +120,7 @@ def show_device(device):
     if request.method == 'POST':
         data = request.get_json(force=True)
         action = data.get('action')
+        msg = data.get('msg', None)
 
         if not action:
             abort(make_response(jsonify(message='malformed payload'), 400))
@@ -132,7 +133,7 @@ def show_device(device):
                 ), 400)
             )
 
-        return jsonify(device.action(action))
+        return jsonify(device.action(action, msg))
 
 # ui files
 #@app.route('/ui/stats')

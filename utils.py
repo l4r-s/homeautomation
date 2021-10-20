@@ -283,14 +283,57 @@ class IkeaSwitch(ZigBeeDevice):
         return msg
 
 class IkeaLamp(IkeaSwitch):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.actions = ['on', 'off', 'toogle', 'brightness', 'color_temp', 'getState']
+
+    def action(self, action, msg={}):
+        if action not in self.actions:
+            print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
+            return False
+
+        if action == 'on' or action == 'off' or action == 'toogle':
+            data = self.setState(action)
+
+        if action == 'getState':
+            data = self.getState()
+
+        if action == 'brightness':
+            brightness = msg.get('brightness', None)
+            transition = msg.get('transition', 1)
+
+            if not brightness:
+                error = 'ERROR - mallformed msg object. msg = { "brightness": 20, "transition": 2 }'
+                print(error)
+                return False, error
+
+            data = self.setBrightness(brightness, transition)
+
+        if action == 'color_temp':
+            color_temp = msg.get('color_temp', None)
+            transition = msg.get('transition', 1)
+
+            if not color_temp:
+                error = 'ERROR - mallformed msg object. msg = { "color_temp": 20, "transition": 2 }'
+                print(error)
+                return False, error
+
+            data = self.setColorTemp(color_temp, transition)
+
+        return data
+
     def setBrightness(self, data, transition=1):
         if data not in range(0,254):
-            print('ERROR - data must be integer between 0 and 254')
-            return None
+            error = 'ERROR - data must be integer between 0 and 254'
+            print(error)
+
+            return False, error
 
         if type(transition) != int:
-            print('ERROR - transition must be an integer.')
-            return None
+            error = 'ERROR - transition must be an integer.'
+            print(error)
+
+            return False, error
 
         self.brightness = data
         msg = { 'brightness': self.brightness, 'transition': transition }
@@ -301,12 +344,16 @@ class IkeaLamp(IkeaSwitch):
         allowed = [ 'coolest', 'cool', 'neutral', 'warm', 'warmest' ]
 
         if data not in range(250,454) and data not in allowed:
-            print('ERROR - data must be integer between 250 and 454 or {}'.format(allowed))
-            return None
+            error = 'ERROR - data must be integer between 250 and 454 or {}'.format(allowed)
+            print(error)
+
+            return False, error
 
         if type(transition) != int:
-            print('ERROR - transition must be an integer.')
-            return None
+            error = 'ERROR - transition must be an integer.'
+            print(error)
+
+            return False, error
 
         self.color_temp = data
         msg = { 'color_temp': self.color_temp, 'transition': transition  }
@@ -317,8 +364,10 @@ class IkeaLamp(IkeaSwitch):
         allowed = [ 'blink', 'breathe', 'okay', 'channel_change', 'finish_effect', 'stop_effect' ]
 
         if data not in allowed:
-            print('ERROR - data must be one of {}'.format(allowed))
-            return None
+            error = 'ERROR - data must be one of {}'.format(allowed)
+            print(error)
+
+            return False, error
 
         msg = { 'effect': data }
         return msg
