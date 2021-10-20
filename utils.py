@@ -3,6 +3,7 @@ import time
 import json
 import yaml
 import requests
+import paho.mqtt.client as mqtt
 
 def Config():
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -121,9 +122,12 @@ class Device():
 
     def load(self):
         config = Config()
+
         storage_directory = config['storage_directory']
         devices = config['devices']
         filename = storage_directory.rstrip('/') + '/' + self.name + '.json'
+
+        self._config = devices[self.name]
 
         data = {}
         name = self.name
@@ -136,7 +140,6 @@ class Device():
 
         self.__dict__.update(data)
         self.name = name
-
 
     def save(self):
         config = Config()
@@ -216,15 +219,24 @@ class ZigBeeDevice(Device):
         super().__init__(*args, **kwargs)
 
         self.com_type = 'zigbee'
+
+        if not self._config.get('zigbee_id', False):
+            self.zigbee_id = self.name
+
         if not self.__dict__.get('zigbee_id'):
             self.zigbee_id = self.name
 
-    def sendMsg(self, msg):
+    def sendMsg(self, msg, topic_suffix='/set'):
         config = Config()
         server = config['zigbee2mqtt']['server']
-        topic = config['zigbee2mqtt']['topic'] + '/' + self.zigbee_id + '/set'
+        topic = config['zigbee2mqtt']['topic'] + '/' + self.zigbee_id + topic_suffix
 
-        print('msg: {}, server: {}, topic: {}'.format(msg, server, topic))
+        client = mqtt.Client()
+        client.connect(config['zigbee2mqtt']['server'], config['zigbee2mqtt']['port'], 60)
+
+        sent_msg = client.publish(topic, json.dumps(msg))
+        sent_msg.wait_for_publish()
+
         return True
 
 class IkeaSwitch(ZigBeeDevice):
@@ -244,6 +256,14 @@ class IkeaSwitch(ZigBeeDevice):
             data = self.getState()
 
         return data
+
+    def getState(self):
+        msg = { 'state': '' }
+
+        if not self.sendMsg(msg, '/get'):
+            return None
+
+        return msg
 
     def setState(self, state='Toogle'):
         allowed = [ 'TOOGLE', 'ON', 'OFF' ]
@@ -302,11 +322,4 @@ class IkeaLamp(IkeaSwitch):
 
         msg = { 'effect': data }
         return msg
-
-#def delete_file(uuid):
-#    filename = config['storage_directory'].rstrip('/') + '/' + uuid + '.json'
-#    os.remove(filename)
-#
-#    return
-
 
