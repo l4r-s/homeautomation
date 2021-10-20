@@ -120,7 +120,7 @@ def show_device(device):
     if request.method == 'POST':
         data = request.get_json(force=True)
         action = data.get('action')
-        msg = data.get('msg', None)
+        msg = data.get('msg', {})
 
         if not action:
             abort(make_response(jsonify(message='malformed payload'), 400))

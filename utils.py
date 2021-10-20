@@ -285,7 +285,7 @@ class IkeaSwitch(ZigBeeDevice):
 class IkeaLamp(IkeaSwitch):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.actions = ['on', 'off', 'toogle', 'brightness', 'color_temp', 'getState']
+        self.actions = ['on', 'off', 'toogle', 'brightness', 'color_temp', 'effect', 'getState']
 
     def action(self, action, msg={}):
         if action not in self.actions:
@@ -320,6 +320,11 @@ class IkeaLamp(IkeaSwitch):
 
             data = self.setColorTemp(color_temp, transition)
 
+        if action == 'effect':
+            effect = msg.get('effect', None)
+
+            data = self.doEffect(effect)
+
         return data
 
     def setBrightness(self, data, transition=1):
@@ -335,8 +340,13 @@ class IkeaLamp(IkeaSwitch):
 
             return False, error
 
-        self.brightness = data
-        msg = { 'brightness': self.brightness, 'transition': transition }
+        msg = { 'brightness': data, 'transition': transition }
+        send = self.sendMsg(msg)
+
+        if not send:
+            return False
+
+        self.__dict__.update(msg)
 
         return msg
 
@@ -357,6 +367,12 @@ class IkeaLamp(IkeaSwitch):
 
         self.color_temp = data
         msg = { 'color_temp': self.color_temp, 'transition': transition  }
+        send = self.sendMsg(msg)
+
+        if not send:
+            return False
+
+        self.__dict__.update(msg)
 
         return msg
 
@@ -370,5 +386,13 @@ class IkeaLamp(IkeaSwitch):
             return False, error
 
         msg = { 'effect': data }
+        send = self.sendMsg(msg)
+
+        if not send:
+            return False
+
+        self.__dict__.update(msg)
+
         return msg
+
 

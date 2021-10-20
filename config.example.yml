@@ -10,9 +10,13 @@ zigbee2mqtt:
   port: 1883
   topic: zigbee2mqtt
 
+http_worker:
+  interval: 2
+
 devices:
     kueche1:
       type: ikea_lamp
+      zigbee_id: test_kueche1
 
     kueche2:
       type: ikea_switch
