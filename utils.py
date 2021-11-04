@@ -258,7 +258,7 @@ class IkeaSwitch(ZigBeeDevice):
         super().__init__(*args, **kwargs)
         self.actions = [ 'on', 'off', 'toggle', 'getState' ]
 
-    def action(self, action):
+    def action(self, action, msg=None):
         if action not in self.actions:
             print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
             return False, None
@@ -300,7 +300,7 @@ class IkeaLamp(IkeaSwitch):
         super().__init__(*args, **kwargs)
         self.actions = ['on', 'off', 'toggle', 'brightness', 'color_temp', 'effect', 'getState']
 
-    def action(self, action, msg={}):
+    def action(self, action, msg=None):
         if action not in self.actions:
             print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
             return False
