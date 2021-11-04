@@ -173,7 +173,7 @@ class MyStromSwitch(Device):
         super().__init__(*args, **kwargs)
 
         self.com_type = 'http'
-        self.actions = [ 'on', 'off', 'toogle', 'getState' ]
+        self.actions = [ 'on', 'off', 'toggle', 'getState' ]
         self.getState()
 
     def action(self, action, msg=None):
@@ -181,7 +181,7 @@ class MyStromSwitch(Device):
             print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
             return False, None
 
-        if action == 'on' or action == 'off' or action == 'toogle':
+        if action == 'on' or action == 'off' or action == 'toggle':
             data = self.setState(action)
 
         if action == 'getState':
@@ -202,13 +202,13 @@ class MyStromSwitch(Device):
         return data
 
     def setState(self, state='Toogle'):
-        allowed = [ 'TOOGLE', 'ON', 'OFF' ]
+        allowed = [ 'TOGGLE', 'ON', 'OFF' ]
 
         if state.upper() not in allowed:
             print('ERROR - {} is not allowed ({})'.format(state, str(allowed)))
             return None
 
-        if state.upper() == 'TOOGLE':
+        if state.upper() == 'TOGGLE':
             path = '/toggle'
 
         if state.upper() == 'ON':
@@ -256,14 +256,14 @@ class ZigBeeDevice(Device):
 class IkeaSwitch(ZigBeeDevice):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.actions = [ 'on', 'off', 'toogle', 'getState' ]
+        self.actions = [ 'on', 'off', 'toggle', 'getState' ]
 
     def action(self, action):
         if action not in self.actions:
             print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
             return False, None
 
-        if action == 'on' or action == 'off' or action == 'toogle':
+        if action == 'on' or action == 'off' or action == 'toggle':
             data = self.setState(action)
 
         if action == 'getState':
@@ -280,7 +280,7 @@ class IkeaSwitch(ZigBeeDevice):
         return msg
 
     def setState(self, state='Toogle'):
-        allowed = [ 'TOOGLE', 'ON', 'OFF' ]
+        allowed = [ 'TOGGLE', 'ON', 'OFF' ]
 
         if state.upper() not in allowed:
             print('ERROR - {} is not allowed ({})'.format(state, str(allowed)))
@@ -298,14 +298,14 @@ class IkeaSwitch(ZigBeeDevice):
 class IkeaLamp(IkeaSwitch):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.actions = ['on', 'off', 'toogle', 'brightness', 'color_temp', 'effect', 'getState']
+        self.actions = ['on', 'off', 'toggle', 'brightness', 'color_temp', 'effect', 'getState']
 
     def action(self, action, msg={}):
         if action not in self.actions:
             print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
             return False
 
-        if action == 'on' or action == 'off' or action == 'toogle':
+        if action == 'on' or action == 'off' or action == 'toggle':
             data = self.setState(action)
 
         if action == 'getState':
