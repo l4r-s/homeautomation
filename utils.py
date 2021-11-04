@@ -176,7 +176,7 @@ class MyStromSwitch(Device):
         self.actions = [ 'on', 'off', 'toogle', 'getState' ]
         self.getState()
 
-    def action(self, action):
+    def action(self, action, msg=None):
         if action not in self.actions:
             print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
             return False, None
