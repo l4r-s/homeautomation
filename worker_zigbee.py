@@ -10,8 +10,8 @@ def on_connect(client, userdata, flags, rc):
     print('Connected with result code ' + str(rc))
 
     sub_list = []
-    for d in zigbee_devices:
-        sub_list.append((str(config['zigbee2mqtt']['topic'] + '/' + d), 0))
+    for d in zigbee_devices.keys():
+        sub_list.append((str(config['zigbee2mqtt']['topic'] + '/' + zigbee_devices[d].zigbee_id), 0))
 
     client.subscribe(sub_list)
     print('Subscribed to topics: ' + str(sub_list))
