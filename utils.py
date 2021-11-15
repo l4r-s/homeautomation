@@ -275,7 +275,6 @@ class ZigBeeActionDevice(ZigBeeDevice):
 class IkeaBaseButton(ZigBeeActionDevice):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.actions = [ 'on' ]
 
 class IkeaSwitch(ZigBeeDevice):
     def __init__(self, *args, **kwargs):
