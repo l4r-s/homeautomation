@@ -63,7 +63,8 @@ def getDeviceClass(dev_type='default'):
         'mystrom_switch': MyStromSwitch,
         'ikea_lamp': IkeaLamp,
         'ikea_switch': IkeaSwitch,
-        'ikea_button': IkeaBaseButton
+        'ikea_button': IkeaBaseButton,
+        'volumio': Volumio
     }
 
     return class_lookup.get(dev_type, Device)
@@ -170,6 +171,82 @@ class Device():
 
         return
 
+class Volumio(Device):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.com_type = 'http'
+        self.actions = [ 'pause', 'stop', 'toggle', 'volume', 'prev', 'next' ]
+        self.getState()
+
+    def _get(self, path, fail=True):
+        url = 'http://{}/{}'.format(self.address, path.lstrip('/'))
+        error = False
+        r = None
+
+        try:
+            r = requests.get(url, timeout=3)
+        except:
+            error = True
+
+        if r:
+            if r.status_code != 200:
+                error = True
+
+        if error:
+            self.online = False
+
+            if fail:
+                print('ERROR - http request to {} not 200: {} - '.format(url, str(r.status_code), str(r.text)))
+
+            return { 'online': False }
+
+        data = r.json()
+        self.online = True
+
+        return data
+
+    def action(self, action, msg=None):
+        if action not in self.actions:
+            print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
+            return False, None
+
+        if action == 'pause' or action == 'stop' or action == 'toggle' or action == 'prev' or action == 'next':
+            data = self.sendCmd(action)
+
+        if action == 'volume':
+            if type(msg) != int:
+                print('ERROR - msg must be an integer, desired volume')
+                return False, None
+
+            data = self.setVolume(msg)
+
+        if action == 'getState':
+            data = self.getState()
+
+        return data
+
+    def setVolume(self, volume=10):
+        data = self._get('api/v1/commands/?cmd=volume&volume={}'.format(volume))
+
+        return data
+
+    def sendCmd(self, action, params = None):
+        if not params:
+            data = self._get('api/v1/commands/?cmd={}'.format(action))
+
+        if params:
+            data = self._get('api/v1/commands/?cmd={}&{}'.format(action, params))
+
+        self.updateData(data)
+        return data
+
+    def getState(self):
+        data = self._get('api/v1/getState', fail=False)
+        self.updateData(data)
+
+        return data
+
 class MyStromSwitch(Device):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -199,7 +276,7 @@ class MyStromSwitch(Device):
             return None
 
         data = r.json()
-        self.update(data)
+        self.updateData(data)
 
         return data
 
@@ -242,6 +319,9 @@ class ZigBeeDevice(Device):
         if not self.__dict__.get('zigbee_id'):
             self.zigbee_id = self.name
 
+    def receiveMsg(self, data):
+        self.updateData(data)
+
     def sendMsg(self, msg, topic_suffix='/set'):
         config = Config()
         server = config['zigbee2mqtt']['server']
@@ -281,7 +361,7 @@ class ZigBeeActionDevice(ZigBeeDevice):
             return False
 
         print("calling scene: {}".format(self.scene))
-        _p = subprocess.Popen("scenes/{}.py".format(self.scene))
+        _p = subprocess.Popen([ "python", "scenes/{}.py".format(self.scene) ])
 
         self.updateData(data)
 
@@ -328,7 +408,7 @@ class IkeaSwitch(ZigBeeDevice):
         if not self.sendMsg(msg):
             return None
 
-        self.update(msg)
+        self.updateData(msg)
 
         return msg
 
@@ -396,7 +476,7 @@ class IkeaLamp(IkeaSwitch):
         if not send:
             return False
 
-        self.update(msg)
+        self.updateData(msg)
 
         return msg
 
@@ -422,7 +502,7 @@ class IkeaLamp(IkeaSwitch):
         if not send:
             return False
 
-        self.update(msg)
+        self.updateData(msg)
 
         return msg
 
@@ -441,7 +521,7 @@ class IkeaLamp(IkeaSwitch):
         if not send:
             return False
 
-        self.update(msg)
+        self.updateData(msg)
 
         return msg
 
