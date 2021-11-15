@@ -3,6 +3,7 @@ import time
 import json
 import yaml
 import requests
+import subprocess
 import paho.mqtt.client as mqtt
 
 
@@ -262,15 +263,28 @@ class ZigBeeActionDevice(ZigBeeDevice):
         super().__init__(*args, **kwargs)
 
     def receiveMsg(self, data):
-        action = data.get('action', None)
-        timestamp = time.time()
+        self.action = data.get('action', None)
 
-        self.action_history.insert(0, { "action": action, "timestamp": timestamp })
+        if not self.action:
+            return False
+
+        timestamp = time.time()
+        self.action_history.insert(0, { "action": self.action, "timestamp": timestamp })
 
         if len(self.action_history) > 10:
             self.action_history = self.action_history[:10]
 
+        self.scene = self.actions.get(self.action)
+
+        if not self.scene:
+            print("no scene found!")
+            return False
+
+        print("calling scene: {}".format(self.scene))
+        _p = subprocess.Popen("scenes/{}.py".format(self.scene))
+
         self.updateData(data)
+
 
 class IkeaBaseButton(ZigBeeActionDevice):
     def __init__(self, *args, **kwargs):
