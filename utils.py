@@ -61,7 +61,8 @@ def getDeviceClass(dev_type='default'):
         'default': Device,
         'mystrom_switch': MyStromSwitch,
         'ikea_lamp': IkeaLamp,
-        'ikea_switch': IkeaSwitch
+        'ikea_switch': IkeaSwitch,
+        'ikea_button': IkeaBaseButton
     }
 
     return class_lookup.get(dev_type, Device)
@@ -122,7 +123,7 @@ class Device():
         print('This device state can only be updated with the .update() method!')
         return False, None
 
-    def update(self, data):
+    def updateData(self, data):
         self.setLastUpdate()
         self.__dict__.update(data)
 
@@ -252,6 +253,29 @@ class ZigBeeDevice(Device):
         sent_msg.wait_for_publish()
 
         return True
+
+class ZigBeeActionDevice(ZigBeeDevice):
+    def __init__(self, *args, **kwargs):
+        self.action = None
+        self.action_history = []
+
+        super().__init__(*args, **kwargs)
+
+    def receiveMsg(self, data):
+        action = data.get('action', None)
+        timestamp = time.time()
+
+        self.action_history.insert(0, { "action": action, "timestamp": timestamp })
+
+        if len(self.action_history) > 10:
+            self.action_history = self.action_history[:10]
+
+        self.updateData(data)
+
+class IkeaBaseButton(ZigBeeActionDevice):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.actions = [ 'on' ]
 
 class IkeaSwitch(ZigBeeDevice):
     def __init__(self, *args, **kwargs):

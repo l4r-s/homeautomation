@@ -17,13 +17,19 @@ def on_connect(client, userdata, flags, rc):
     print('Subscribed to topics: ' + str(sub_list))
 
 def on_message(client, userdata, msg):
-    device = msg.topic.lstrip(config['zigbee2mqtt']['topic'] + '/')
+    zigbee_id = msg.topic.lstrip(config['zigbee2mqtt']['topic'] + '/')
 
-    if not devices.get(device):
+    device = None
+
+    for d in zigbee_devices:
+        if zigbee_id == devices[d].zigbee_id:
+            device = loadDevice(d)
+
+    if not device:
         print('received message without matching device. topic: {}, msg: {}'.format(msg.topic, msg.payload))
         return False
 
-    devices[device].update(json.loads(msg.payload))
+    device.receiveMsg(json.loads(msg.payload))
     print('received: ' + str(msg.topic) + ' ' + str(msg.payload))
 
 client = mqtt.Client()
