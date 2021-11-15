@@ -3,10 +3,9 @@
 storage_directory: store/
 api_tokens:
   - test1234
-  - test1111
 
 zigbee2mqtt:
-  server: localhost
+  server: mqtt.server.tld
   port: 1883
   topic: zigbee2mqtt
 
@@ -14,24 +13,26 @@ http_worker:
   interval: 2
 
 devices:
-    kueche1:
+    office1:
       type: ikea_lamp
-      zigbee_id: test_kueche1
+      zigbee_id: "0xDEWnioEEedeEIE"
 
-    kueche2:
-      type: ikea_switch
+    music_button:
+      type: ikea_button
+      zigbee_id: "0xAAA8043Dfednioe"
+      actions:
+        "toggle": radio
+        "brightness_move_up": volumio_volume_up
+        "brightness_move_down": volumio_volume_down
+        #"brightness_step_up": spotify
+        "brightness_step_down": radio_poweroff
 
-    kueche3:
-      type: ikea_lamp
-
-    wohnzimmer:
+    music_switch:
       type: mystrom_switch
-      address: 10.111.1.198
+      address: 192.168.2.2
 
-    volumio1:
+    volumio:
       type: volumio
-      address: 10.111.1.101
-
-
+      address: 192.168.2.3
 
 ...
