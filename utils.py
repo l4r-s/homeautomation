@@ -88,14 +88,14 @@ def loadDevices(com_type=None):
     config = Config()
 
     devices = {}
-    filtered = []
+    filtered = {}
 
     for device in config['devices'].keys():
         devices[device] = getDeviceClass(config['devices'][device]['type'])(device)
 
         if com_type:
             if devices[device].com_type == com_type:
-                filtered.append(device)
+                filtered[device] = devices[device]
 
         if not com_type:
             filtered = devices
@@ -228,8 +228,11 @@ class Volumio(Device):
 
     def setVolume(self, volume=10):
         data = self._get('api/v1/commands/?cmd=volume&volume={}'.format(volume))
+        self.volume = volume
 
-        return data
+        self.save()
+
+        return { 'volume': volume }
 
     def sendCmd(self, action, params = None):
         if not params:

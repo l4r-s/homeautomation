@@ -4,7 +4,7 @@ import paho.mqtt.client as mqtt
 from utils import *
 
 config = Config()
-devices, zigbee_devices = loadDevices()
+devices, zigbee_devices = loadDevices('zigbee')
 
 def on_connect(client, userdata, flags, rc):
     print('Connected with result code ' + str(rc))
