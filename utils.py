@@ -176,7 +176,7 @@ class Volumio(Device):
         super().__init__(*args, **kwargs)
 
         self.com_type = 'http'
-        self.actions = [ 'pause', 'stop', 'toggle', 'volume', 'prev', 'next' ]
+        self.actions = [ 'pause', 'stop', 'toggle', 'volume', 'prev', 'next', 'getState' ]
         self.getState()
 
     def _get(self, path, fail=True):
