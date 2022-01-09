@@ -513,7 +513,7 @@ class IkeaLamp(IkeaSwitch):
         allowed = [ 'blink', 'breathe', 'okay', 'channel_change', 'finish_effect', 'stop_effect' ]
 
         if data not in allowed:
-            error = 'ERROR - data must be one of {}'.format(allowed)
+            error = 'ERROR - msg must be one of {}'.format(allowed)
             print(error)
 
             return False, error
