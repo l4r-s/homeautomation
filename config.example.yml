@@ -20,7 +20,7 @@ devices:
     music_button:
       type: ikea_button
       zigbee_id: "0xAAA8043Dfednioe"
-      actions:
+      scenes:
         "toggle": radio
         "brightness_move_up": volumio_volume_up
         "brightness_move_down": volumio_volume_down

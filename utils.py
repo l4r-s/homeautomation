@@ -357,7 +357,7 @@ class ZigBeeActionDevice(ZigBeeDevice):
         if len(self.action_history) > 10:
             self.action_history = self.action_history[:10]
 
-        self.scene = self.actions.get(self.action)
+        self.scene = self.scenes.get(self.action)
 
         if not self.scene:
             print("no scene found!")
