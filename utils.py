@@ -432,6 +432,11 @@ class IkeaLamp(IkeaSwitch):
             data = self.getState()
 
         if action == 'brightness':
+            if not type(msg) == dict:
+                error = 'ERROR - mallformed msg object. msg = { "brightness": 20, "transition": 2 }'
+                print(error)
+                return False, error
+
             brightness = msg.get('brightness', None)
             transition = msg.get('transition', 1)
 
@@ -443,6 +448,11 @@ class IkeaLamp(IkeaSwitch):
             data = self.setBrightness(brightness, transition)
 
         if action == 'color_temp':
+            if not type(msg) == dict:
+                error = 'ERROR - mallformed msg object. msg = { "color_temp": 20, "transition": 2 }'
+                print(error)
+                return False, error
+
             color_temp = msg.get('color_temp', None)
             transition = msg.get('transition', 1)
 
@@ -454,7 +464,17 @@ class IkeaLamp(IkeaSwitch):
             data = self.setColorTemp(color_temp, transition)
 
         if action == 'effect':
+            if not type(msg) == dict:
+                error = 'ERROR - mallformed msg object. Example: msg = { "effect": "blink" }'
+                print(error)
+                return False, error
+
             effect = msg.get('effect', None)
+
+            if not effect:
+                error = 'ERROR - mallformed msg object. Example: msg = { "effect": "blink" }'
+                print(error)
+                return False, error
 
             data = self.doEffect(effect)
 
