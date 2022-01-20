@@ -2,10 +2,10 @@ import os
 import time
 import json
 import yaml
+import logging
 import requests
 import subprocess
 import paho.mqtt.client as mqtt
-
 
 ##
 # Config
@@ -52,6 +52,35 @@ def Config():
 
     return config
 
+##
+# logger
+##
+
+def logger(name=''):
+    config = Config()
+
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+
+    # file handlers
+    if 'logfile' in config:
+        fh = logging.FileHandler(config['logfile'])
+        fh.setLevel(level=logging.DEBUG)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
+    return logger
+
+log = logger()
 
 ##
 # Device loading
