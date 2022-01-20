@@ -346,6 +346,7 @@ class ZigBeeActionDevice(ZigBeeDevice):
         super().__init__(*args, **kwargs)
 
     def receiveMsg(self, data):
+        config = Config()
         self.action = data.get('action', None)
 
         if not self.action:
@@ -364,7 +365,7 @@ class ZigBeeActionDevice(ZigBeeDevice):
             return False
 
         print("calling scene: {}".format(self.scene))
-        _p = subprocess.Popen([ "python", "scenes/{}.py".format(self.scene) ])
+        _p = subprocess.Popen([ config['python_path'], "scenes/{}.py".format(self.scene) ])
 
         self.updateData(data)
 

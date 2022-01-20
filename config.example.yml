@@ -1,5 +1,6 @@
 ---
 
+python_path: venv/bin/python
 storage_directory: store/
 api_tokens:
   - test1234
