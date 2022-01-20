@@ -6,14 +6,14 @@ devices, http_devices = loadDevices('http')
 
 while True:
     for d in http_devices:
-        print(d)
+        log.info(d)
         out = devices[d].getState()
 
         #if not e:
-        #    print('ERROR - {} - getState() was not sucessfull'.format(d))
+        #    log.error('{} - getState() was not sucessfull'.format(d))
         #    continue
 
-        print('INFO - {} - getState(): {}'.format(d, out))
+        log.info('INFO - {} - getState(): {}'.format(d, out))
 
     time.sleep(config['http_worker']['interval'])
 

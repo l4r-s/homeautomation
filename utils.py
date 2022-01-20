@@ -60,13 +60,13 @@ def logger(name=''):
     config = Config()
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     # console handler
     ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    ch.setLevel(logging.INFO)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
@@ -74,7 +74,7 @@ def logger(name=''):
     # file handlers
     if 'logfile' in config:
         fh = logging.FileHandler(config['logfile'])
-        fh.setLevel(level=logging.DEBUG)
+        fh.setLevel(level=logging.INFO)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 
@@ -104,7 +104,7 @@ def loadDevice(name):
     device = config['devices'].get(name, None)
 
     if not device:
-        print('ERROR - device {} not found in config!'.format(name))
+        log.error('device {} not found in config!'.format(name))
         return False
 
     return getDeviceClass(config['devices'][name]['type'])(name)
@@ -151,7 +151,7 @@ class Device():
         return json.dumps(self.__dict__)
 
     def getState(self):
-        print('This device state can only be updated with the .update() method!')
+        log.error('This device state can only be updated with the .update() method!')
         return False, None
 
     def updateData(self, data):
@@ -226,7 +226,7 @@ class Volumio(Device):
             self.online = False
 
             if fail:
-                print('ERROR - http request to {} not 200: {} - '.format(url, str(r.status_code), str(r.text)))
+                log.error('http request to {} not 200: {} - '.format(url, str(r.status_code), str(r.text)))
 
             return { 'online': False }
 
@@ -237,7 +237,7 @@ class Volumio(Device):
 
     def action(self, action, msg=None):
         if action not in self.actions:
-            print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
+            log.error('{} is not allowed ({})'.format(action, str(self.actions)))
             return False, None
 
         if action == 'pause' or action == 'stop' or action == 'toggle' or action == 'prev' or action == 'next':
@@ -245,7 +245,7 @@ class Volumio(Device):
 
         if action == 'volume':
             if type(msg) != int:
-                print('ERROR - msg must be an integer, desired volume')
+                log.error('msg must be an integer, desired volume')
                 return False, None
 
             data = self.setVolume(msg)
@@ -289,7 +289,7 @@ class MyStromSwitch(Device):
 
     def action(self, action, msg=None):
         if action not in self.actions:
-            print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
+            log.error('{} is not allowed ({})'.format(action, str(self.actions)))
             return False, None
 
         if action == 'on' or action == 'off' or action == 'toggle':
@@ -304,7 +304,7 @@ class MyStromSwitch(Device):
         r = requests.get('http://{}/report'.format(self.address))
 
         if r.status_code != 200:
-            print('ERROR - http request not 200: {} - '.format(str(r.status_code), str(r.text)))
+            log.error('http request not 200: {} - '.format(str(r.status_code), str(r.text)))
             return None
 
         data = r.json()
@@ -316,7 +316,7 @@ class MyStromSwitch(Device):
         allowed = [ 'TOGGLE', 'ON', 'OFF' ]
 
         if state.upper() not in allowed:
-            print('ERROR - {} is not allowed ({})'.format(state, str(allowed)))
+            log.error('{} is not allowed ({})'.format(state, str(allowed)))
             return None
 
         if state.upper() == 'TOGGLE':
@@ -332,7 +332,7 @@ class MyStromSwitch(Device):
         r = requests.get(url)
 
         if r.status_code != 200:
-            print('ERROR - http request not 200: {} - '.format(str(r.status_code), str(r.text)))
+            log.error('http request not 200: {} - '.format(str(r.status_code), str(r.text)))
             return None
 
         _, data = self.getState()
@@ -390,10 +390,10 @@ class ZigBeeActionDevice(ZigBeeDevice):
         self.scene = self.scenes.get(self.action)
 
         if not self.scene:
-            print("no scene found!")
+            log.error("no scene found!")
             return False
 
-        print("calling scene: {}".format(self.scene))
+        log.info("calling scene: {}".format(self.scene))
         _p = subprocess.Popen([ config['python_path'], "scenes/{}.py".format(self.scene) ])
 
         self.updateData(data)
@@ -410,7 +410,7 @@ class IkeaSwitch(ZigBeeDevice):
 
     def action(self, action, msg=None):
         if action not in self.actions:
-            print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
+            log.error('{} is not allowed ({})'.format(action, str(self.actions)))
             return False, None
 
         if action == 'on' or action == 'off' or action == 'toggle':
@@ -433,7 +433,7 @@ class IkeaSwitch(ZigBeeDevice):
         allowed = [ 'TOGGLE', 'ON', 'OFF' ]
 
         if state.upper() not in allowed:
-            print('ERROR - {} is not allowed ({})'.format(state, str(allowed)))
+            log.error('{} is not allowed ({})'.format(state, str(allowed)))
             return None
 
         msg = { 'state': state.upper() }
@@ -452,7 +452,7 @@ class IkeaLamp(IkeaSwitch):
 
     def action(self, action, msg=None):
         if action not in self.actions:
-            print('ERROR - {} is not allowed ({})'.format(action, str(self.actions)))
+            log.error('{} is not allowed ({})'.format(action, str(self.actions)))
             return False
 
         if action == 'on' or action == 'off' or action == 'toggle':
@@ -464,7 +464,7 @@ class IkeaLamp(IkeaSwitch):
         if action == 'brightness':
             if not type(msg) == dict:
                 error = 'ERROR - mallformed msg object. msg = { "brightness": 20, "transition": 2 }'
-                print(error)
+                log.error(error)
                 return False, error
 
             brightness = msg.get('brightness', None)
@@ -472,7 +472,7 @@ class IkeaLamp(IkeaSwitch):
 
             if not brightness:
                 error = 'ERROR - mallformed msg object. msg = { "brightness": 20, "transition": 2 }'
-                print(error)
+                log.error(error)
                 return False, error
 
             data = self.setBrightness(brightness, transition)
@@ -480,7 +480,7 @@ class IkeaLamp(IkeaSwitch):
         if action == 'color_temp':
             if not type(msg) == dict:
                 error = 'ERROR - mallformed msg object. msg = { "color_temp": 20, "transition": 2 }'
-                print(error)
+                log.error(error)
                 return False, error
 
             color_temp = msg.get('color_temp', None)
@@ -488,7 +488,7 @@ class IkeaLamp(IkeaSwitch):
 
             if not color_temp:
                 error = 'ERROR - mallformed msg object. msg = { "color_temp": 20, "transition": 2 }'
-                print(error)
+                log.error(error)
                 return False, error
 
             data = self.setColorTemp(color_temp, transition)
@@ -496,14 +496,14 @@ class IkeaLamp(IkeaSwitch):
         if action == 'effect':
             if not type(msg) == dict:
                 error = 'ERROR - mallformed msg object. Example: msg = { "effect": "blink" }'
-                print(error)
+                log.error(error)
                 return False, error
 
             effect = msg.get('effect', None)
 
             if not effect:
                 error = 'ERROR - mallformed msg object. Example: msg = { "effect": "blink" }'
-                print(error)
+                log.error(error)
                 return False, error
 
             data = self.doEffect(effect)
@@ -513,13 +513,13 @@ class IkeaLamp(IkeaSwitch):
     def setBrightness(self, data, transition=1):
         if data not in range(0,254):
             error = 'ERROR - data must be integer between 0 and 254'
-            print(error)
+            log.error(error)
 
             return False, error
 
         if type(transition) != int:
             error = 'ERROR - transition must be an integer.'
-            print(error)
+            log.error(error)
 
             return False, error
 
@@ -538,13 +538,13 @@ class IkeaLamp(IkeaSwitch):
 
         if data not in range(250,454) and data not in allowed:
             error = 'ERROR - data must be integer between 250 and 454 or {}'.format(allowed)
-            print(error)
+            log.error(error)
 
             return False, error
 
         if type(transition) != int:
             error = 'ERROR - transition must be an integer.'
-            print(error)
+            log.error(error)
 
             return False, error
 
@@ -564,7 +564,7 @@ class IkeaLamp(IkeaSwitch):
 
         if data not in allowed:
             error = 'ERROR - msg must be one of {}'.format(allowed)
-            print(error)
+            log.error(error)
 
             return False, error
 

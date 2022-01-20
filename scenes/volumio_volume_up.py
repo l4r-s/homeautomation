@@ -9,7 +9,7 @@ from utils import *
 volumio = loadDevice('volumio')
 
 if not volumio.online:
-    print("Volumio is not online, exiting...")
+    log.info("Volumio is not online, exiting...")
     sys.exit(0)
 
 volumio.setVolume(volumio.volume + 5)

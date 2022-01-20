@@ -19,8 +19,9 @@ if switch.relay:
 switch.setState('on')
 
 while not volumio.online:
-    print("Waiting for Volumio to come online")
     volumio.getState()
+    log.info("Waiting for Volumio to come online")
+    time.sleep(2)
 
 volumio.setVolume(40)
 volumio.sendCmd('toggle')
