@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import json
 import yaml
@@ -394,7 +395,7 @@ class ZigBeeActionDevice(ZigBeeDevice):
             return False
 
         log.info("calling scene: {}".format(self.scene))
-        _p = subprocess.Popen([ config['python_path'], "scenes/{}.py".format(self.scene) ])
+        _p = subprocess.Popen([ sys.executable, "scenes/{}.py".format(self.scene) ])
 
         self.updateData(data)
 

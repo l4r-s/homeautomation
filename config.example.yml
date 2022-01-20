@@ -1,6 +1,5 @@
 ---
 
-python_path: venv/bin/python
 storage_directory: store/
 logfile: logfile.log
 api_tokens:
