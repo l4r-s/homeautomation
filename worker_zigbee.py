@@ -14,7 +14,9 @@ def on_connect(client, userdata, flags, rc):
         sub_list.append((str(config['zigbee2mqtt']['topic'] + '/' + zigbee_devices[d].zigbee_id), 0))
 
     client.subscribe(sub_list)
-    log.info('Subscribed to topics: ' + str(sub_list))
+
+    for sub in sub_list:
+        log.info('Subscribed to topic: ' + str(sub[0]))
 
 def on_message(client, userdata, msg):
     zigbee_id = msg.topic.lstrip(config['zigbee2mqtt']['topic'] + '/')
