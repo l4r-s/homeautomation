@@ -94,6 +94,7 @@ def getDeviceClass(dev_type='default'):
         'ikea_lamp': IkeaLamp,
         'ikea_switch': IkeaSwitch,
         'ikea_button': IkeaBaseButton,
+        'zigbee_log': ZigBeeLogDevice,
         'volumio': Volumio
     }
 
@@ -367,6 +368,10 @@ class ZigBeeDevice(Device):
         sent_msg.wait_for_publish()
 
         return True
+
+class ZigBeeLogDevice(ZigBeeDevice):
+    def receiveMsg(self, data):
+        self.updateData(data)
 
 class ZigBeeActionDevice(ZigBeeDevice):
     def __init__(self, *args, **kwargs):
