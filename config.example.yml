@@ -5,6 +5,11 @@ logfile: logfile.log
 api_tokens:
   - test1234
 
+metrics:
+  server: graphite_server
+  prefix: homeautomation
+  timeout: 5
+
 zigbee2mqtt:
   server: mqtt.server.tld
   port: 1883
@@ -15,6 +20,7 @@ http_worker:
 
 devices:
     office1:
+      metrics: true
       type: ikea_lamp
       zigbee_id: "0xDEWnioEEedeEIE"
 
