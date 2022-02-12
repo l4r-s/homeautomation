@@ -31,7 +31,11 @@ while True:
                 if k == 'last_received':
                     now = time.localtime()
                     unix_now = time.mktime(now)
-                    value = unix_now - data.last_update['unix']
+
+                    try:
+                        value = unix_now - data.last_update['unix']
+                    except:
+                        value = 0
 
                 if k != 'last_received':
                     value = data.__dict__[k]
