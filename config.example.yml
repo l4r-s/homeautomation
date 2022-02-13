@@ -6,6 +6,7 @@ api_tokens:
   - test1234
 
 metrics:
+  render_api_base_url: http://graphite_server:8081
   server: graphite_server
   prefix: homeautomation
   timeout: 5
