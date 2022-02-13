@@ -37,27 +37,75 @@
             </div>
         </div>
         <div class="container mt-3">
-            <table class="table">
-                <tbody>
-                    {% for k in device_data.__dict__ if not k.startswith('_') %}
-                    <tr>
-                        <th scope="row">{{ k }}</th>
-                        {% if k == 'last_update' %}
-                        <td>{{ device_data[k]['human'] }}</td>
-                        {% else %}
-                        <td>{{ device_data[k] }}</td>
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="container mt-3">
+
+            <div class="accordion" id="accordionPanelsStayOpenExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                        <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#panelsStayOpen-collapseOne"
+                            aria-expanded="false"
+                            aria-controls="panelsStayOpen-collapseOne"
+                        >
+                            <h4 class="text-primary">Details</h4>
+                        </button>
+                    </h2>
+                    <div
+                        id="panelsStayOpen-collapseOne"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="panelsStayOpen-headingOne"
+                    >
+                        <div class="accordion-body">
+                            <table class="table">
+                                <tbody>
+                                    {% for k in device_data.__dict__ if not k.startswith('_') %}
+                                    <tr>
+                                        <th scope="row">{{ k }}</th>
+                                        {% if k == 'last_update' %}
+                                        <td>{{ device_data[k]['human'] }}</td>
+                                        {% else %}
+                                        <td>{{ device_data[k] }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             {% for m in metrics %}
-                <div class="card pt-2">
-                    <img src="../api/v1/devices/{{ device }}/metrics/{{ m }}?from={{ from_data }}" class="card-img-top" alt="Metrics Graph for {{ m }}">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="panelsStayOpen-heading{{ m }}">
+                        <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#panelsStayOpen-collapse{{ m }}"
+                            aria-expanded="false"
+                            aria-controls="panelsStayOpen-collapse{{ m }}"
+                        >
+                            <h4 class="text-primary">{{ m }}</h4>
+                        </button>
+                    </h2>
+                    <div
+                        id="panelsStayOpen-collapse{{ m }}"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="panelsStayOpen-heading{{ m }}"
+                    >
+                        <div class="accordion-body">
+                            <img
+                                src="../api/v1/devices/{{ device }}/metrics/{{ m }}?from={{ from_data }}"
+                                class="card-img-top"
+                                alt="Metrics Graph for {{ m }}"
+                            >
+                        </div>
+                    </div>
                 </div>
             {% endfor %}
+            </div>
         </div>
         </div>
   </body>
