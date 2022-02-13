@@ -1,0 +1,30 @@
+﻿<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
+        <title>Homeautomation!</title>
+    </head>
+    <body>
+        <script src="bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+
+        <div class="mt-0 p-4 bg-light border">
+            <h1>Homeautomation</h1>
+        </div>
+        <div class="container mt-3">
+            {% for d in devices %}
+            <div class="card mt-2">
+                <div class="card-body">
+                    <h5 class="card-title">{{ devices[d]['name'] }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Battery {{ devices[d]['battery'] }}%</h6>
+                    <a href="/details/{{ d }}" class="card-link">Metrics</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        </div>
+  </body>
+</html>
+

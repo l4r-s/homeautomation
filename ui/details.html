@@ -1,0 +1,65 @@
+﻿<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="../bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
+        <title>{{ device }} - Homeautomation!</title>
+    </head>
+    <body>
+        <script src="../bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+
+        <div class="mt-0 p-4 bg-light border">
+            <h1>Homeautomation</h1>
+            <h2>Details for: {{ device }}</h2>
+
+            <div class="dropdown">
+                <a class="btn btn-primary" href="/" role="button">Go back</a>
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    From
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <li><a class="dropdown-item" href="?from=-1hours">-1 Hour</a></li>
+                    <li><a class="dropdown-item" href="?from=-2hours">-2 Hours</a></li>
+                    <li><a class="dropdown-item" href="?from=-4hours">-4 Hours</a></li>
+                    <li><a class="dropdown-item" href="?from=-8hours">-8 Hours</a></li>
+                    <li><a class="dropdown-item" href="?from=-1days">-1 Day</a></li>
+                    <li><a class="dropdown-item" href="?from=-2days">-2 Day</a></li>
+                    <li><a class="dropdown-item" href="?from=-7days">-7 Day</a></li>
+                    <li><a class="dropdown-item" href="?from=-14days">-14 Day</a></li>
+                    <li><a class="dropdown-item" href="?from=-1months">-1 Month</a></li>
+                    <li><a class="dropdown-item" href="?from=-3months">-3 Month</a></li>
+                    <li><a class="dropdown-item" href="?from=-1years">-1 Year</a></li>
+                    <li><a class="dropdown-item" href="?from=-2years">-2 Year</a></li>
+                    <li><a class="dropdown-item" href="?from=-3years">-3 Year</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container mt-3">
+            <table class="table">
+                <tbody>
+                    {% for k in device_data.__dict__ if not k.startswith('_') %}
+                    <tr>
+                        <th scope="row">{{ k }}</th>
+                        {% if k == 'last_update' %}
+                        <td>{{ device_data[k]['human'] }}</td>
+                        {% else %}
+                        <td>{{ device_data[k] }}</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="container mt-3">
+            {% for m in metrics %}
+                <div class="card pt-2">
+                    <img src="../api/v1/devices/{{ device }}/metrics/{{ m }}?from={{ from_data }}" class="card-img-top" alt="Metrics Graph for {{ m }}">
+                </div>
+            {% endfor %}
+        </div>
+        </div>
+  </body>
+</html>
+
