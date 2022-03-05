@@ -33,8 +33,6 @@ app.logger.setLevel(logging.INFO)
 CORS(app)
 
 config = Config()
-
-##
 # debug
 ##
 if app.config['DEBUG']:
@@ -114,8 +112,18 @@ def add_header(r):
 # ui files
 @app.route('/')
 def ui_index():
+    from_data = request.args.get('from')
+    if not from_data:
+        from_data = "-1days"
+
     devices, _ = loadDevices()
-    return render_template("index.html", devices=devices)
+
+    return render_template(
+        "index.html",
+        devices = devices,
+        from_data = from_data,
+        device_groups = config['device_groups']
+    )
 
 @app.route('/details/<device>')
 def ui_details(device):
@@ -224,6 +232,28 @@ def device_metrics(device):
             data.append(m['text'])
 
     return jsonify(data)
+
+@app.route('/api/v1/device_groups/<device_group_name>/metrics/<metric>', methods = [ 'GET' ])
+def device_group_metrics_render(device_group_name, metric):
+    from_data = request.args.get('from')
+
+    if not from_data:
+        from_data = "-1days"
+
+    device_group = config['device_groups'][device_group_name]
+    device_list = ','.join(device_group['devices'])
+
+    url = "%s/render/?target=aliasByNode(cactiStyle(aliasByNode(%s.{%s}.%s,1)),3)&from=%s&height=400&width=800&title=%s&bgcolor=white&fgcolor=black&drawNullAsZero=false&lineMode=connected&colorList=green,blue,yellow,green,blue,black,orange,pink&yMin=0"%(
+        config['metrics']['render_api_base_url'],
+        config['metrics']['prefix'],
+        device_list,
+        metric,
+        from_data,
+        metric
+    )
+
+    r = requests.get(url, stream = True)
+    return Response(stream_with_context(r.iter_content()), content_type = r.headers['content-type'])
 
 @app.route('/api/v1/devices/<device>/metrics/<metric>', methods = [ 'GET' ])
 def device_metrics_render(device, metric):

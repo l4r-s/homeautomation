@@ -19,6 +19,14 @@ zigbee2mqtt:
 http_worker:
   interval: 2
 
+device_groups:
+  temperature:
+    devices:
+      - temp1
+      - temp2
+    metrics:
+      - temperature
+
 devices:
     office1:
       metrics: true

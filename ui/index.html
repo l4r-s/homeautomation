@@ -12,19 +12,66 @@
 
         <div class="mt-0 p-4 bg-light border">
             <h1>Homeautomation</h1>
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    From
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <li><a class="dropdown-item" href="?from=-1hours">-1 Hour</a></li>
+                    <li><a class="dropdown-item" href="?from=-2hours">-2 Hours</a></li>
+                    <li><a class="dropdown-item" href="?from=-4hours">-4 Hours</a></li>
+                    <li><a class="dropdown-item" href="?from=-8hours">-8 Hours</a></li>
+                    <li><a class="dropdown-item" href="?from=-1days">-1 Day</a></li>
+                    <li><a class="dropdown-item" href="?from=-2days">-2 Day</a></li>
+                    <li><a class="dropdown-item" href="?from=-7days">-7 Day</a></li>
+                    <li><a class="dropdown-item" href="?from=-14days">-14 Day</a></li>
+                    <li><a class="dropdown-item" href="?from=-1months">-1 Month</a></li>
+                    <li><a class="dropdown-item" href="?from=-3months">-3 Month</a></li>
+                    <li><a class="dropdown-item" href="?from=-1years">-1 Year</a></li>
+                    <li><a class="dropdown-item" href="?from=-2years">-2 Year</a></li>
+                    <li><a class="dropdown-item" href="?from=-3years">-3 Year</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="container mt-3">
-            {% for d in devices %}
-            <div class="card mt-2">
-                <div class="card-body">
-                    <h5 class="card-title">{{ devices[d]['name'] }}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">Battery {{ devices[d]['battery'] }}%</h6>
-                    <a href="/details/{{ d }}" class="card-link">Metrics</a>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <div class="container mt-3">
+                        {% for d in devices %}
+                        <div class="card mt-2">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ devices[d]['name'] }}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">Battery {{ devices[d]['battery'] }}%</h6>
+                                <a href="/details/{{ d }}" class="card-link">Metrics</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-sm">
+                    <div class="container mt-3">
+                        {% for dg in device_groups %}
+                        <div class="card mt-2">
+                            {% for m in device_groups[dg].metrics %}
+                            <div class="card-body">
+                            <h5 class="card-title">{{ dg }}</h5>
+                                <img
+                                    src="api/v1/device_groups/{{ dg }}/metrics/{{ m }}?from={{ from_data }}"
+                                    class="card-img-top"
+                                    alt="Metrics Graph for {{ dg }}/{{ m }}"
+                                >
+                            {% endfor %}
+                            </div>
+                        </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
-        </div>
+
   </body>
 </html>
 
