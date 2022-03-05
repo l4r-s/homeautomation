@@ -54,14 +54,18 @@
                     <div class="container mt-3">
                         {% for dg in device_groups %}
                         <div class="card mt-2">
+                            <h5 class="card-title mt-2 m-4">{{ dg }}</h5>
                             {% for m in device_groups[dg].metrics %}
                             <div class="card-body">
-                            <h5 class="card-title">{{ dg }}</h5>
-                                <img
-                                    src="api/v1/device_groups/{{ dg }}/metrics/{{ m }}?from={{ from_data }}"
-                                    class="card-img-top"
-                                    alt="Metrics Graph for {{ dg }}/{{ m }}"
+                                <a
+                                    href="api/v1/device_groups/{{ dg }}/metrics/{{ m }}?from={{ from_data }}"
                                 >
+                                    <img
+                                        src="api/v1/device_groups/{{ dg }}/metrics/{{ m }}?from={{ from_data }}"
+                                        class="card-img-top"
+                                        alt="Metrics Graph for {{ dg }}/{{ m }}"
+                                    >
+                                </a>
                             {% endfor %}
                             </div>
                         </div>
