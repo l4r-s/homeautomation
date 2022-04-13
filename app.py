@@ -243,7 +243,7 @@ def device_group_metrics_render(device_group_name, metric):
     device_group = config['device_groups'][device_group_name]
     device_list = ','.join(device_group['devices'])
 
-    url = "%s/render/?target=aliasByNode(cactiStyle(aliasByNode(%s.{%s}.%s,1)),3)&from=%s&height=400&width=800&title=%s&bgcolor=white&fgcolor=black&drawNullAsZero=false&lineMode=connected&colorList=green,blue,yellow,blue,black,purple,orange&yMin=0"%(
+    url = "%s/render/?target=aliasByNode(cactiStyle(aliasByNode(%s.{%s}.%s,1)),3)&from=%s&height=400&width=800&title=%s&bgcolor=white&fgcolor=black&drawNullAsZero=false&lineMode=connected&colorList=green,blue,yellow,black,purple,orange,red,darkgrey,rose,magenta&yMin=0"%(
         config['metrics']['render_api_base_url'],
         config['metrics']['prefix'],
         device_list,
