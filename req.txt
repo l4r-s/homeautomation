@@ -1,3 +1,4 @@
+soco
 paho-mqtt
 requests
 flask_cors

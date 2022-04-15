@@ -7,6 +7,7 @@ import logging
 import requests
 import subprocess
 import paho.mqtt.client as mqtt
+import soco
 
 ##
 # Config
@@ -95,7 +96,8 @@ def getDeviceClass(dev_type='default'):
         'ikea_switch': IkeaSwitch,
         'ikea_button': IkeaBaseButton,
         'zigbee_log': ZigBeeLogDevice,
-        'volumio': Volumio
+        'volumio': Volumio,
+        'sonos': Sonos
     }
 
     return class_lookup.get(dev_type, Device)
@@ -279,6 +281,82 @@ class Volumio(Device):
         data = self._get('api/v1/getState', fail=False)
         self.updateData(data)
 
+        return data
+
+class Sonos(Device):
+    def __init__(self, *args, **kwargs):
+        self.play_state = False
+        self.player = []
+
+        super().__init__(*args, **kwargs)
+
+        self.com_type = 'http'
+        self.actions = [ 'toggle', 'volume', 'getState' ]
+        self.getState()
+
+    def action(self, action, msg=None):
+        data = {}
+
+        if action not in self.actions:
+            log.error('{} is not allowed ({})'.format(action, str(self.actions)))
+            return False, None
+
+        if action == 'toggle':
+            self.doToggle()
+
+        if action == 'volume':
+            if type(msg) != int:
+                log.error('msg must be an integer, desired volume')
+                return False, None
+
+            data = self.setVolume(msg)
+
+        if action == 'getState':
+            data = self.getState()
+
+        return data
+
+    def doToggle(self):
+        coordinator = soco.SoCo(self.coordinator)
+        self.play_state = not self.play_state
+
+        if self.play_state:
+            coordinator.play()
+
+        if not self.play_state:
+            coordinator.pause()
+
+        self.save()
+
+        return { 'play_state': self.play_state }
+
+    def setVolume(self, volume=10):
+        for p in self.player:
+            player = soco.SoCo(p)
+            player.volume = volume
+
+        self.volume = volume
+        self.save()
+
+        return { 'volume': volume }
+
+    def getState(self):
+        data = { 'online': True }
+        zones = soco.discover()
+
+        if not zones:
+            data = { 'online': False }
+            log.error('No sonos controller found!')
+
+        if zones:
+            for z in zones:
+                self.player.append(z.ip_address)
+
+                if z._is_coordinator:
+                    self.coordinator = z.ip_address
+                    self.volume = z.volume
+
+        self.updateData(data)
         return data
 
 class MyStromSwitch(Device):
