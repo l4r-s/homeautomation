@@ -29,6 +29,8 @@ device_groups:
 
 devices:
     office1:
+      # how long in secondes no update is fine
+      max_last_update_diff: 10
       metrics: true
       type: ikea_lamp
       zigbee_id: "0xDEWnioEEedeEIE"

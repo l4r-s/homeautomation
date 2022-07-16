@@ -192,6 +192,14 @@ class Device():
         self.__dict__.update(data)
         self.name = name
 
+        if self.__dict__.get('max_last_update_diff'):
+            now = time.mktime(time.localtime())
+            max_diff = now - data['max_last_update_diff']
+
+            if self.__dict__['last_update']['unix'] < max_diff:
+                self.__dict__['last_update']['outdated'] = True
+
+
     def save(self):
         config = Config()
 
