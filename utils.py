@@ -327,25 +327,33 @@ class Sonos(Device):
         return data
 
     def doToggle(self):
-        coordinator = soco.SoCo(self.coordinator)
         self.play_state = not self.play_state
 
-        if self.play_state:
-            coordinator.play()
+        for p in self.coordinators:
+            player = soco.SoCo(p)
 
-        if not self.play_state:
-            coordinator.pause()
+            if self.play_state:
+                player.volume = self.volume
+                player.play()
+
+            if not self.play_state:
+                player.pause()
 
         self.save()
 
         return { 'play_state': self.play_state }
 
     def setVolume(self, volume=10):
-        for p in self.player:
-            player = soco.SoCo(p)
-            player.volume = volume
-
         self.volume = volume
+
+        for p in self.coordinators:
+            player = soco.SoCo(p)
+            player.volume = self.volume
+
+        for p in self.players:
+            player = soco.SoCo(p)
+            player.volume = self.volume
+
         self.save()
 
         return { 'volume': volume }
@@ -359,11 +367,19 @@ class Sonos(Device):
             log.error('No sonos controller found!')
 
         if zones:
+            self.players = []
+            self.coordinators = []
+
             for z in zones:
-                self.player.append(z.ip_address)
+                if not z._is_coordinator:
+                    self.players.append(z.ip_address)
+
+                # skip player if it is not the zone we want
+                if z._player_name != self.player_name:
+                    continue
 
                 if z._is_coordinator:
-                    self.coordinator = z.ip_address
+                    self.coordinators.append(z.ip_address)
                     self.volume = z.volume
 
         self.updateData(data)
