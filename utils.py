@@ -329,10 +329,10 @@ class Sonos(Device):
     def blink(self, player_ip):
         player = soco.SoCo(player_ip)
 
-        light = player.status_light
-        player.status_light = not light
+        player.status_light = False
+        player.status_light = True
         time.sleep(0.3)
-        player.status_light = light
+        player.status_light = False
 
     def doToggle(self):
         self.play_state = not self.play_state
