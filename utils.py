@@ -326,13 +326,16 @@ class Sonos(Device):
 
         return data
 
-    def blink(self, player_ip):
+    def blink(self, player_ip, num=1):
         player = soco.SoCo(player_ip)
+        i = 0
 
-        player.status_light = False
-        player.status_light = True
-        time.sleep(0.3)
-        player.status_light = False
+        while i < num:
+            player.status_light = False
+            player.status_light = True
+            time.sleep(0.3)
+            player.status_light = False
+            i += 1
 
     def doToggle(self):
         self.play_state = not self.play_state
@@ -341,6 +344,7 @@ class Sonos(Device):
             player = soco.SoCo(p)
 
             if self.play_state:
+                self.blink(p, 3)
                 player.volume = self.volume
                 player.play()
 
