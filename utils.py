@@ -297,11 +297,13 @@ class Sonos(Device):
     def __init__(self, *args, **kwargs):
         self.play_state = False
         self.player = []
+        self.joined = False
+        self.ip = None
 
         super().__init__(*args, **kwargs)
 
         self.com_type = 'http'
-        self.actions = [ 'toggle', 'volume', 'getState' ]
+        self.actions = [ 'toggle', 'volume', 'getState', 'join', 'unjoin' ]
         self.getState()
 
     def action(self, action, msg=None):
@@ -313,6 +315,16 @@ class Sonos(Device):
 
         if action == 'toggle':
             self.doToggle()
+
+        if action == 'join':
+            if self.join_to is defined:
+                self.doJoin()
+
+            if self.join_to is not defined:
+                log.error('{} is not allowed because device does not have a join_to key'.format(action))
+
+        if action == 'unjoin':
+            self.doUnJoin()
 
         if action == 'volume':
             if type(msg) != int:
@@ -336,6 +348,27 @@ class Sonos(Device):
             time.sleep(0.3)
             player.status_light = False
             i += 1
+
+    def doToggleJoin(self):
+        if self.joined:
+            self.doUnJoin()
+        else:
+            self.doJoin()
+
+    def doJoin(self):
+        player = soco.SoCo(self.ip)
+
+        for p in self.players:
+            join_player = soco.SoCo(p)
+            if join_player._player_name == self.join_to:
+                player.join(join_player)
+                self.joined = True
+
+    def doUnJoin(self):
+        player = soco.SoCo(self.ip)
+        player.unjoin()
+        self.joined = False
+        self.save()
 
     def doToggle(self):
         self.play_state = not self.play_state
@@ -385,12 +418,16 @@ class Sonos(Device):
             self.coordinators = []
 
             for z in zones:
-                if not z._is_coordinator:
-                    self.players.append(z.ip_address)
+                self.players.append(z.ip_address)
 
                 # skip player if it is not the zone we want
                 if z._player_name != self.player_name:
                     continue
+
+                if not z._is_coordinator:
+                    self.joined = True
+
+                self.ip = z.ip_address
 
                 if z._is_coordinator:
                     self.coordinators.append(z.ip_address)
