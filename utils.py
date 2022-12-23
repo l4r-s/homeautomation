@@ -554,8 +554,17 @@ class ZigBeeActionDevice(ZigBeeDevice):
             log.error("no scene found!")
             return False
 
-        log.info("calling scene: {}".format(self.scene))
-        _p = subprocess.Popen([ sys.executable, "scenes/{}.py".format(self.scene) ])
+        if type(self.scene) == str:
+            log.info("calling scene: {}".format(self.scene))
+            _p = subprocess.Popen([ sys.executable, "scenes/{}.py".format(self.scene) ])
+
+        if type(self.scene) == list:
+            log.info("calling scene: {} with params {}".format(self.scene[0], self.scene[1:]))
+            cmd = self.scene
+            cmd[0] = "scenes/{}.py".format(self.scene[0])
+            cmd.insert(0, sys.executable)
+
+            _p = subprocess.Popen(cmd)
 
         self.updateData(data)
 

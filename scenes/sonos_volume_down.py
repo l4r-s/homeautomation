@@ -7,5 +7,6 @@ from soco import SoCo
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from utils import *
 
-sonos = loadDevice('sonos_kueche')
+device_name = sys.argv[1]
+sonos = loadDevice(device_name)
 sonos.setVolume(sonos.volume - 1)
