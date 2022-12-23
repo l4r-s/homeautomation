@@ -295,7 +295,7 @@ class Volumio(Device):
 
 class Sonos(Device):
     def __init__(self, *args, **kwargs):
-        self.play_state = False
+        self.transport_info = {}
         self.player = []
         self.joined = False
         self.ip = None
@@ -371,22 +371,21 @@ class Sonos(Device):
         self.save()
 
     def doToggle(self):
-        self.play_state = not self.play_state
-
         for p in self.coordinators:
             player = soco.SoCo(p)
+            state = self.transport_info['current_transport_state']
 
-            if self.play_state:
+            if state == 'STOPPED':
                 self.blink(p, 3)
                 player.volume = self.volume
                 player.play()
 
-            if not self.play_state:
+            if state == 'PLAYING':
                 player.pause()
 
         self.save()
 
-        return { 'play_state': self.play_state }
+        return { 'play_state': self.transport_info['current_transport_state'] }
 
     def setVolume(self, volume=10):
         self.volume = volume
@@ -428,6 +427,7 @@ class Sonos(Device):
                     self.joined = True
 
                 self.ip = z.ip_address
+                self.transport_info = z.get_current_transport_info()
 
                 if z._is_coordinator:
                     self.coordinators.append(z.ip_address)
