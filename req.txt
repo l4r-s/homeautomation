@@ -1,3 +1,4 @@
+tabulate
 soco
 paho-mqtt
 requests
