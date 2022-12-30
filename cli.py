@@ -33,31 +33,34 @@ def env_default(envvar):
 ##
 # list devices
 ##
-def list_devices(base_url, print_json=False, internal=False):
-    url = base_url.rstrip('/') + '/api/v1/devices'
-    r = requests.get(url)
+def list_devices(base_url, print_json=False, internal=False, device_list=None):
+    if not device_list:
+        url = base_url.rstrip('/') + '/api/v1/devices'
+        r = requests.get(url)
 
-    if r.status_code == 200:
-        data = r.json()
+        if r.status_code == 200:
+            data = r.json()
 
-        if internal:
-            return data
+    if device_list:
+        data = device_list.split(',')
 
+    if internal:
+        return data
 
-        if print_json:
-            print(json.dumps(data, indent=2))
+    if print_json:
+        print(json.dumps(data, indent=2))
 
-        if not print_json:
-            # get device details
-            new_data = []
-            for device in data:
-                d = get_device_details(base_url, device, print_json=print_json, internal=True)
+    if not print_json:
+        # get device details
+        new_data = []
+        for device in data:
+            d = get_device_details(base_url, device, print_json=print_json, internal=True)
 
-                if d:
-                    new_data.append(d)
+            if d:
+                new_data.append(d)
 
-            #print(tabulate([ new_data ], headers="keys"))
-            print(tabulate(new_data, headers="keys"))
+        #print(tabulate([ new_data ], headers="keys"))
+        print(tabulate(new_data, headers="keys"))
 
 ##
 # filter keys for allowed_keys list
@@ -120,6 +123,8 @@ def main():
     parser.add_argument('-j', '--json', default=False, action='store_true', help='Displays output as json')
 
     parser.add_argument('-l', '--list', default=False, action='store_true', help='List devices')
+    parser.add_argument('-x', '--device-list', required=False, help='Devices for overview')
+
     parser.add_argument('-d', '--device', required=False, help='Device for detail view or action')
     parser.add_argument('-a', '--action', required=False, help='Action for the given device (not yet working)')
     args = parser.parse_args()
@@ -132,7 +137,7 @@ def main():
             get_device_details(args.url, args.device, args.json)
 
     if args.list:
-        list_devices(args.url, args.json)
+        list_devices(args.url, print_json=args.json, device_list=args.device_list)
 
 if __name__ == "__main__":
     main()
