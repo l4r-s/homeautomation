@@ -59,7 +59,6 @@ def list_devices(base_url, print_json=False, internal=False, device_list=None):
             if d:
                 new_data.append(d)
 
-        #print(tabulate([ new_data ], headers="keys"))
         print(tabulate(new_data, headers="keys"))
 
 ##
