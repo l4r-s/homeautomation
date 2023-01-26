@@ -708,7 +708,7 @@ class IkeaLamp(IkeaSwitch):
             'brightness': {
                 'type': 'slider',
                 'min': 1,
-                'max': 254,
+                'max': 253,
                 'additional_kv': {
                     'transition': 1
                 }
@@ -717,7 +717,7 @@ class IkeaLamp(IkeaSwitch):
             'color_temp': {
                 'type': 'slider',
                 'min': 250,
-                'max': 454,
+                'max': 453,
                 'additional_kv': {
                     'transition': 1
                 }
@@ -795,8 +795,8 @@ class IkeaLamp(IkeaSwitch):
         return data
 
     def setBrightness(self, data, transition=1):
-        if data not in range(0,254):
-            error = 'ERROR - data must be integer between 0 and 254'
+        if data not in range(0,253):
+            error = 'ERROR - data must be integer between 0 and 253'
             log.error(error)
 
             return False, error
@@ -820,8 +820,8 @@ class IkeaLamp(IkeaSwitch):
     def setColorTemp(self, data, transition=1):
         allowed = [ 'coolest', 'cool', 'neutral', 'warm', 'warmest' ]
 
-        if data not in range(250,454) and data not in allowed:
-            error = 'ERROR - data must be integer between 250 and 454 or {}'.format(allowed)
+        if data not in range(250,453) and data not in allowed:
+            error = 'ERROR - data must be integer between 250 and 453 or {}'.format(allowed)
             log.error(error)
 
             return False, error
