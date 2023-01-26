@@ -38,13 +38,14 @@
             </div>
         </div>
         <div class="container mt-3">
-            {% if device_data.__dict__.actions %}
-            <div class="d-flex justify-content-center flex-nowrap">
-                <div class="btn-group" role="group" aria-label="Device actions">
-                    {% for a in device_data.__dict__.actions %}
+            {% if device_data.__dict__.actions and device_data.__dict__.actions is mapping %}
+            <div class="container mt-3">
+                {% for a in device_data.__dict__.actions.keys() %}
+                    {% set action = device_data.__dict__.actions[a] %}
+                    {% if action.type == 'button' %}
                     <button
                         type="button"
-                        class="btn btn-secondary"
+                        class="btn btn-primary m-1"
 
                         x-data="{
                             result: {},
@@ -64,9 +65,53 @@
                         }"
 
                         x-on:click="actionPOST{{ a }}"
-                    >{{ a }}</button>
-                    {% endfor %}
-                  </div>
+                    >{{ action.label | d(a) }}</button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="container mt-3">
+                {% for a in device_data.__dict__.actions.keys() %}
+                    {% set action = device_data.__dict__.actions[a] %}
+                        {% if action.type == 'slider' %}
+                        <p
+                            x-data="{
+                                result: {},
+                                value: {{ device_data.__dict__[a] | d(0) }},
+
+                                async actionPOST(value) {
+                                    this.result = await (await fetch('/api/v1/devices/{{ device }}', {
+                                      method: 'POST',
+                                      body: JSON.stringify({
+                                        action: '{{ a }}',
+                                        {{ a }}: parseInt(value),
+                                        {% if action.additional_kv %}
+                                        {% for k,v in action.additional_kv.items() %}
+                                        {{ k }}: {{ v }},
+                                        {% endfor %}
+                                        {% endif %}
+                                      }),
+                                      headers: {
+                                        'Content-type': 'application/json; charset=UTF-8',
+                                      },
+                                    })).json();
+                                    // console.log(this.result);
+                                },
+                            }"
+                        >
+                            {{ action.label | d(a) }}:
+                            <input
+                                type="range"
+                                min="{{ action.min }}"
+                                max="{{ action.max }}"
+                                x-model="value"
+
+                                x-on:mouseup="actionPOST(value)"
+                            >
+                            (<span x-text="value"></span>)
+                        </p>
+                    {% endif %}
+                {% endfor %}
             </div>
             {% endif %}
 

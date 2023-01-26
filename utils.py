@@ -304,6 +304,35 @@ class Sonos(Device):
 
         self.com_type = 'http'
         self.actions = [ 'toggle', 'volume', 'getState', 'join', 'unjoin' ]
+        self.actions = {
+            'toggle': {
+                'type': 'button',
+                'label': 'Toogle'
+            },
+
+            'join': {
+                'type': 'button',
+                'label': 'Join'
+            },
+
+             'unjoin': {
+                'type': 'button',
+                'label': 'Un-join'
+            },
+
+            'volume': {
+                'type': 'slider',
+                'min': 1,
+                'max': 100,
+            },
+
+
+            'getState': {
+                'type': 'button',
+                'label': 'Refresh data'
+            }
+        }
+
         self.getState()
 
     def action(self, action, msg=None):
@@ -441,12 +470,33 @@ class MyStromSwitch(Device):
         super().__init__(*args, **kwargs)
 
         self.com_type = 'http'
-        self.actions = [ 'on', 'off', 'toggle', 'getState' ]
+        self.actions = {
+            'on': {
+                'type': 'button',
+                'label': 'On'
+            },
+
+            'off': {
+                'type': 'button',
+                'label': 'Off'
+            },
+
+            'toggle': {
+                'type': 'button',
+                'label': 'Toogle'
+            },
+
+            'getState': {
+                'type': 'button',
+                'label': 'Refresh data'
+            }
+        }
+
         self.getState()
 
     def action(self, action, msg=None):
-        if action not in self.actions:
-            log.error('{} is not allowed ({})'.format(action, str(self.actions)))
+        if action not in self.actions.keys():
+            log.error('{} is not allowed ({})'.format(action, str(self.actions.keys())))
             return False, None
 
         if action == 'on' or action == 'off' or action == 'toggle':
@@ -576,11 +626,32 @@ class IkeaBaseButton(ZigBeeActionDevice):
 class IkeaSwitch(ZigBeeDevice):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.actions = [ 'on', 'off', 'toggle', 'getState' ]
+        self.actions = {
+            'on': {
+                'type': 'button',
+                'label': 'On'
+            },
+
+            'off': {
+                'type': 'button',
+                'label': 'Off'
+            },
+
+            'toggle': {
+                'type': 'button',
+                'label': 'Toogle'
+            },
+
+            'getState': {
+                'type': 'button',
+                'label': 'Refresh data'
+            }
+        }
+
 
     def action(self, action, msg=None):
-        if action not in self.actions:
-            log.error('{} is not allowed ({})'.format(action, str(self.actions)))
+        if action not in self.actions.keys():
+            log.error('{} is not allowed ({})'.format(action, str(self.actions.keys())))
             return False, None
 
         if action == 'on' or action == 'off' or action == 'toggle':
@@ -618,11 +689,54 @@ class IkeaSwitch(ZigBeeDevice):
 class IkeaLamp(IkeaSwitch):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.actions = ['on', 'off', 'toggle', 'brightness', 'color_temp', 'effect', 'getState']
+        self.actions = { 
+            'on': {
+                'type': 'button',
+                'label': 'On'
+            },
+
+            'off': {
+                'type': 'button',
+                'label': 'Off'
+            },
+
+            'toggle': {
+                'type': 'button',
+                'label': 'Toogle'
+            },
+
+            'brightness': {
+                'type': 'slider',
+                'min': 1,
+                'max': 254,
+                'additional_kv': {
+                    'transition': 1
+                }
+            },
+
+            'color_temp': {
+                'type': 'slider',
+                'min': 250,
+                'max': 454,
+                'additional_kv': {
+                    'transition': 1
+                }
+            },
+
+            'effect': {
+                'type': 'list'
+            },
+
+            'getState': {
+                'type': 'button',
+                'label': 'Refresh data'
+            }
+
+            }
 
     def action(self, action, msg=None):
-        if action not in self.actions:
-            log.error('{} is not allowed ({})'.format(action, str(self.actions)))
+        if action not in self.actions.keys():
+            log.error('{} is not allowed ({})'.format(action, str(self.actions.keys())))
             return False
 
         if action == 'on' or action == 'off' or action == 'toggle':
