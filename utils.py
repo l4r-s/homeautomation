@@ -795,7 +795,7 @@ class IkeaLamp(IkeaSwitch):
         return data
 
     def setBrightness(self, data, transition=1):
-        if data not in range(0,253):
+        if data not in range(0,254):
             error = 'ERROR - data must be integer between 0 and 253'
             log.error(error)
 
@@ -820,7 +820,7 @@ class IkeaLamp(IkeaSwitch):
     def setColorTemp(self, data, transition=1):
         allowed = [ 'coolest', 'cool', 'neutral', 'warm', 'warmest' ]
 
-        if data not in range(250,453) and data not in allowed:
+        if data not in range(250,454) and data not in allowed:
             error = 'ERROR - data must be integer between 250 and 453 or {}'.format(allowed)
             log.error(error)
 
