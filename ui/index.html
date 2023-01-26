@@ -39,10 +39,12 @@
                 <div class="col-sm">
                     <div class="container mt-3">
                         {% for d in devices %}
-                        <div class="card mt-2">
+                        <div class="card mt-1">
                             <div class="card-body">
                                 <h5 class="card-title">
-                                    {{ devices[d]['name'] }}
+                                    <a href="/details/{{ d }}" class="card-link">
+                                        {{ devices[d]['name'] }}
+                                    </a>
                                     {% if devices[d]['last_update'] and devices[d]['last_update']['outdated'] is defined %}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle text-danger" viewBox="0 0 16 16">
                                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -53,11 +55,12 @@
                                 {% if devices[d]['temperature'] is defined %}
                                 <h6 class="card-subtitle mb-2 text-muted">Temp {{ devices[d]['temperature'] }}°</h6>
                                 {% endif %}
+                                {% if devices[d]['battery'] is defined %}
                                 <h6 class="card-subtitle mb-2 text-muted">Battery {{ devices[d]['battery'] }}%</h6>
+                                {% endif %}
                                 {% if devices[d]['last_update'] and devices[d]['last_update']['outdated'] is defined %}
                                 <h6 class="card-subtitle mb-2 text-muted">Last update {{ devices[d]['last_update']['human'] }}</h6>
                                 {% endif %}
-                                <a href="/details/{{ d }}" class="card-link">Metrics</a>
                             </div>
                         </div>
                         {% endfor %}
