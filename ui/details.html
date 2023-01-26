@@ -84,12 +84,14 @@
                                       method: 'POST',
                                       body: JSON.stringify({
                                         action: '{{ a }}',
-                                        {{ a }}: parseInt(value),
-                                        {% if action.additional_kv %}
-                                        {% for k,v in action.additional_kv.items() %}
-                                        {{ k }}: {{ v }},
-                                        {% endfor %}
-                                        {% endif %}
+                                        msg: {
+                                            {{ a }}: parseInt(value),
+                                            {% if action.additional_kv %}
+                                            {% for k,v in action.additional_kv.items() %}
+                                            {{ k }}: {{ v }},
+                                            {% endfor %}
+                                            {% endif %}
+                                        }
                                       }),
                                       headers: {
                                         'Content-type': 'application/json; charset=UTF-8',
