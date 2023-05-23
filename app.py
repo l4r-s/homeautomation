@@ -217,5 +217,43 @@ def device_metrics_render(device, metric):
     r = requests.get(url, stream = True)
     return Response(stream_with_context(r.iter_content()), content_type = r.headers['content-type'])
 
+@app.route('/api/v1/lora/webhook', methods = [ 'POST' ])
+def lora_webhook():
+    headers={}
+    data = request.get_json(force=True)
+    for i in request.headers:
+        headers[i[0]] = i[1]
+    data['headers'] = headers
+
+
+    lora_id = None
+    if data.get('end_device_ids'):
+        if data['end_device_ids']['device_id']:
+            lora_id = data['end_device_ids']['device_id']
+
+    if not lora_id:
+        app.logger.info('Received payload wihout end_device_ids.device_id: ' + str(json.dumps(data, indent=2)))
+        return jsonify({})
+
+    if not data.get('uplink_message'):
+        app.logger.info('Received payload wihout uplink_message: ' + str(json.dumps(data, indent=2)))
+        return jsonify({})
+
+    if not data['uplink_message'].get('decoded_payload'):
+        app.logger.error('Received payload wihout uplink_message.decoded_payload: ' + str(json.dumps(data, indent=2)))
+        return jsonify({})
+
+    device = None
+    devices, lora_devices = loadDevices('lora')
+    for d in lora_devices:
+        if lora_id == devices[d].device_id:
+            device = loadDevice(d)
+
+    if not device:
+        app.logger.error('Received payload wihout matching device: ' + str(json.dumps(data, indent=2)))
+        return jsonify({})
+
+    device.receiveMsg(data)
+    return jsonify({})
 
 # vim: set syntax=python:

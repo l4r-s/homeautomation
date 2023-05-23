@@ -96,6 +96,7 @@ def getDeviceClass(dev_type='default'):
         'ikea_switch': IkeaSwitch,
         'ikea_button': IkeaBaseButton,
         'zigbee_log': ZigBeeLogDevice,
+        'lora_log': LoraLogDevice,
         'volumio': Volumio,
         'sonos': Sonos
     }
@@ -117,6 +118,7 @@ def loadDevices(com_type=None):
     # type:
     #  - zigbee
     #  - http
+    #  - lora
 
     config = Config()
 
@@ -545,6 +547,14 @@ class MyStromSwitch(Device):
         _, data = self.getState()
 
         return data
+
+class LoraLogDevice(Device):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.com_type = 'lora'
+
+    def receiveMsg(self, data):
+        self.updateData(data)
 
 class ZigBeeDevice(Device):
     def __init__(self, *args, **kwargs):
