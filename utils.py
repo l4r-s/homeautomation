@@ -554,6 +554,11 @@ class LoraLogDevice(Device):
         self.com_type = 'lora'
 
     def receiveMsg(self, data):
+        if data.get('uplink_message'):
+            if data['uplink_message'].get('decoded_payload'):
+                for k,v in data['uplink_message']['decoded_payload'].items():
+                    data[k] = v
+
         self.updateData(data)
 
 class ZigBeeDevice(Device):
