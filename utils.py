@@ -98,6 +98,7 @@ def getDeviceClass(dev_type='default'):
         'zigbee_log': ZigBeeLogDevice,
         'lora_log': LoraLogDevice,
         'volumio': Volumio,
+        'fingerbot': Fingerbot,
         'sonos': Sonos
     }
 
@@ -633,6 +634,35 @@ class ZigBeeActionDevice(ZigBeeDevice):
 
         self.updateData(data)
 
+
+class Fingerbot(ZigBeeDevice):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.actions = {
+            'press': {
+                'type': 'button',
+                'label': 'Press'
+            }
+        }
+
+
+    def action(self, action, msg=None):
+        if action not in self.actions.keys():
+            log.error('{} is not allowed ({})'.format(action, str(self.actions.keys())))
+            return False, None
+
+        if action == 'press':
+            data = self.press()
+
+        return data
+
+    def press(self):
+        msg = { 'state': 'ON' }
+
+        if not self.sendMsg(msg, '/get'):
+            return None
+
+        return msg
 
 class IkeaBaseButton(ZigBeeActionDevice):
     def __init__(self, *args, **kwargs):
