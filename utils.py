@@ -657,7 +657,8 @@ class Fingerbot(ZigBeeDevice):
         return data
 
     def press(self):
-        msg = { 'state': 'ON' }
+        # linkquality must be set to work
+        msg = { 'linkquality': 109, 'state': 'ON' }
 
         if not self.sendMsg(msg, '/get'):
             return None
