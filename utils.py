@@ -553,12 +553,18 @@ class LoraLogDevice(Device):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.com_type = 'lora'
+        self.rewrite_keys = {
+            "TempC_SHT": "temperature",
+            "Hum_SHT": "humidity"
+        }
 
     def receiveMsg(self, data):
         if data.get('uplink_message'):
             if data['uplink_message'].get('decoded_payload'):
                 for k,v in data['uplink_message']['decoded_payload'].items():
                     data[k] = v
+                    if k in self.rewrite_keys.keys():
+                        data[self.rewrite_keys[k]] = v
 
         self.updateData(data)
 
